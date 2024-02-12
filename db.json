@@ -1,7 +1,7 @@
 {
   "projetos": [
     {
-      "id": 1,
+      "id": "1",
       "nome": "Alura Tracker"
     },
     {
@@ -11,6 +11,26 @@
     {
       "id": "70e9",
       "nome": "sadasd"
+    }
+  ],
+  "tarefas": [
+    {
+      "id": "1",
+      "duracaoEmSegundos": 120,
+      "descricao": "Configuracao do ambiente2233",
+      "projeto": {
+        "id": 1,
+        "nome": "Alura Tracker"
+      }
+    },
+    {
+      "id": "20b4",
+      "duracaoEmSegundos": 2,
+      "descricao": "asdasd22",
+      "projeto": {
+        "id": "b317",
+        "nome": "asdasd222"
+      }
     }
   ]
 }

@@ -1,5 +1,11 @@
 #### 11/02/2024
 
+```
+npx json-server db.json
+npm run serve
+npm i axios
+```
+
 Curso de Vue3: composition API e Vuex
 
 @01-Hora da API 
@@ -322,3 +328,509 @@ Implementar ações, responsáveis pelo processamento assíncrono;
 Diferente das mutations, as actions podem ser assíncronas, e não devem modificar o estado diretamente. Por isso, quando o processamento termina, nós fazemos o commit para atualizar o estado.
 Despachar ações a partir dos componentes;
 Podemos despachar as actions a partir de qualquer componente com acesso à store.
+
+#### 12/02/2024
+
+@02-Organizando a store
+
+@@01
+Projeto da aula anterior
+
+Caso queira começar daqui, você pode baixar o projeto da aula anterior nesse link.
+
+https://github.com/alura-cursos/tracker-3/tree/aula-1
+
+@@02
+Migrando as tarefas para a store
+
+[00:00] Muito bacana, já estamos conectados, já estamos trazendo nossos projetos. E agora precisamos seguir, dar sequência e trazer essa mesma lógica, essa mesma conexão com a API para as nossas tarefas.
+[00:13] As tarefas precisam ser enviadas, alteradas e removidas da API. Vamos botar a mão no código, vamos colocar isso para funcionar. Vem comigo.
+
+[00:24] Vamos fechar todas as abas que ficaram abertas no VS Code. E eu vou entrar dentro do “src > store > index.ts". Perfeito. Vamos fechar o console.
+
+[00:35] Lembrando mais uma vez, sempre dois consoles rodando, um com o nosso npm run server, que sobe o frontend em si, e um outro rodando o nosso Json-server, aquela API de mentira que configuramos no nosso arquivo “db.json” no começo do curso.
+
+[00:53] O que precisamos agora é dar atenção às tarefas. Já temos todo o fluxo de projetos, ações e mutações, está na hora de fazer das tarefas.
+
+[01:07] Nada se cria, tudo se copia, o que precisamos fazer é: nos "tipo-acoes.ts” teremos um export const OBTER_TAREFAS = ‘OBTER_TAREFAS’.
+
+[01:21] Também precisaremos de uma mutação, já vamos criar esse tipo separado, em "tipo-mutacoes.ts” export const DEFINIR_TAREFAS = ‘DEFINIR_TAREFAS’. Agora sim. Já criamos os dois tipos e agora podemos implementar.
+
+[01:42] Já podemos pegar o exemplo do OBTER_PROJETOS e ajustar o que for necessário. Fiz um “Ctrl + C”, “Ctrl + V”. Eu não quero mais obter projetos, eu quero [OBTER_TAREFAS] ({ commit }), ele completou para mim.
+
+[01:56] O get que eu vou fazer não é no recurso de projetos, é no recurso de tarefas, então http.get(’tarefas’). E eu não quero também definir os projetos no meu estado, eu quero definir as tarefas, .then(response => commit(DEFINIR_TAREFAS, response.data)).
+
+[02:11] Quando alguém vai lá e despacha a ação de obter tarefas, faremos requisição, pegar essa resposta e definir no nosso estado.
+
+[02:28] Vamos dar uma olhada se está faltando alguma coisa, definimos. Olha só, repara comigo, estamos definindo as tarefas, OBTER_TAREFAS, só que esse DEFINIR_TAREFAS ainda não fizemos. Vamos agora fazer.
+
+[02:42] Mais uma vez, nada se cria, tudo se copia, vou fazer um “Ctrl + C”, “Ctrl + V” [DEFINIR_TAREFAS] (state, projetos: ITarefas[]). E agora não receberemos mais um array de projetos, receberemos um array de tarefas, state.tarefas = tarefas.
+
+[03:02] Repara o seguinte: já está falando para mim: "Você está tentando definir uma lista de tarefas, mas isso não existe no nosso estado, eu não sei o que você está querendo fazer aqui". Vamos no nosso estado padrão, temos uma interface que representa ele e vamos agora também incluir as tarefas.
+
+[03:20] E vamos agora também incluir as tarefas, tarefas ITarefa. Perfeito. Agora, por último, só precisamos definir um estado inicial, pode ser o nosso array vazio de tarefas, tarefas: [].
+
+[03:36] Agora sim, está tudo compilando, vamos atualizar a página para ver se não quebramos nada, vou abrir o developer tool, vou recarregar. Nenhum erro no console ainda não temos tarefas, porém precisamos plugar isso, precisamos fazer o dispatch dessa ação.
+
+[03:57] Vamos procurar dentro de “views”, temos a nossa “Tarefas.vue". Repara que nessa versão temos um array em um estado interno, que é o nosso ID tarefas, não vamos usar mais esse cara, eu vou apagá-lo. Repara que ele vai dar alguns erros, inclusive no de salvarTarefas, vamos comentar esse cara.
+
+[04:24] Podemos deixar o último código, de fato teremos um array de tarefas, só que vai ser um pouco diferente. Sempre procurando uma referência, não precisamos decorar as coisas, temos que lembrar os conceitos por detrás e ter uma referência ou duas de como você fez.
+
+[04:40] Vamos dar uma olhada na lista de projetos e ver como fizemos, "Lista.vue". Acompanha comigo, dentro do componente que está em "src > views > projetos > Lista.vue". Temos o setup que monta a store e já quando ele monta ele faz o dispatch dos projetos.
+
+[04:58] Vamos fazer isso. Vamos dar um “Ctrl + C” em “Lista.vue” e um “Ctrl + V” em “Tarefas.vue”, nada se cria, tudo se copia. Ele já vai reclamar que não temos esses imports, vamos ver se ele importa. Acho que ele importou, importou o useStore.
+
+[05:22] Queremos fazer o dispatch de OBTER_TAREFAS, é isso. Vamos fazer esse cara. E por fim, faltou fazer um import no computed do Vue. E não temos mais projetos, aqui nós temos tarefas, tarefas: computed(() => store.state.tarefas).
+
+[05:40] Repara que até o computed diz que se o array de tarefas é vazio, antes ele estava reclamando uma compilação, agora ele está ok, de fato temos agora o nosso array de tarefas vindo da API.
+
+[05:53] Vamos dar uma olhada, precisamos de uma duração em segundos, uma descrição e um projeto. Vamos mocar isso lá na nossa API. Já temos os nossos recursos de projetos, agora teremos os nossos recursos de tarefas, esse cara é um array, "tarefas": [ { > "id": 1,.
+
+[06:22] O que mais temos? Vamos voltar em ITarefas para ver, duracaoEmSegundos, descricao e um projeto, “Ctrl + C". Vamos ajustar, temos uma ”duracaoEmSegundos”, uma ”descrição” e um ”projeto”.
+
+[06:42] Podemos dizer que a ”duracaoEmSegundos”: 120 segundos, a ”descricao”: “Configuração do ambiente". E o projeto aqui é outro objeto que vai ter o ”id” do projeto, por exemplo, vai ser o nosso ”id”: “Alura Tracker 3.0”, que é do Alura Tracker. Perfeito, mocamos aqui uma tarefa.
+
+[07:17] O que tem que acontecer agora nesse momento? Vamos só tirar esse amarelo, ele está reclamando, está dando um warning aqui, estamos fazendo um import que não usamos, vamos tirar o import já que não estamos usando.
+
+[07:31] Qual é o nosso conceito aqui? Entramos na lista de tarefas, temos que fazer o dispatch dessa ação, já estamos fazendo e, dado que essa ação foi processada, ele vai definir o nosso estado e automaticamente o Vue vai renderizar isso na nossa lista.
+
+[07:46] Vamos ver se isso está funcionando. Voltei aqui, estamos em projetos, vamos em "tarefas". Perfeito. Repara, ele já listou para nós, a duração ele fez direito, trouxe o projeto, trouxe a descrição da tarefa. Agora, assim como fazemos com projetos, nós estamos plugados com o recurso de tarefas.
+
+[08:07] Precisamos dar sequência, pegar esse cadastro de tarefa e também migrar e trazer isso para dentro do nosso estado.
+
+[08:16] Antes tínhamos só um estado local, agora teremos uma conexão com a API. É isso que precisamos fazer, vamos juntos na próxima aula. Espero você já.
+
+@@03
+Cadastrando tarefas
+
+[00:00] Já estamos trazendo a lista de tarefas agora da API, vamos agora cadastrar essa tarefa na API.
+[00:07] Aqui não temos muita novidade, já sabemos como faz, vamos abrir o nosso projeto dentro de “src > store > index”. Precisamos agora de uma action que vai de fato cadastrar essa tarefa.
+
+[00:22] Vamos fazer isso. Vamos abrir os nossos tipos, sabemos que vamos precisar, vou abrir o tipo de ações e o tipo de mutações, "tipo-acoes.ts” e “tipo-mutacoes.ts".
+
+[00:29] O que queremos? Vamos, além de definir as tarefas, ter outra mutação, que vai ser a de adicionar tarefa export const ADICIONA_TAREFAS = ‘ADICIONA_TAREFAS’. Perfeito. Pegaremos uma tarefa e adicionaremos o estado local.
+
+[00:47] E o tipo de ações também, teremos um CADASTRAR_TAREFAS, em "tipo-acoes.ts", vamos criar essa constante, export const CADASTRAR_TAREFAS = ‘CADASTRAR_TAREFAS’.
+
+[00:56] Já criamos os dois tipos, o tipo de ação e o tipo de mutação, um para fazer a chamada na API e o outro para aplicar no estado. E agora vamos implementar esses caras. De novo, nada se cria, tudo se copia. Repara comigo o que vamos fazer aqui no "index.ts"
+
+[01:15] Vai ser um pouco diferente, você vai ver aqui junto comigo, não queremos mais cadastrar um projeto, queremos cadastrar uma tarefa, [CADASTRAR_TAREFAS] (contexto, tarefa: ITarefa). Recebemos os mesmo parâmetros, vamos dar uma olhada nas nossas “views > Tarefas.vue”. O método que salva já monta a tarefa e manda ela pronta, vamos receber essa tarefa por parâmetro, tarefa: ITarefa.
+
+[01:43] E agora o que queremos fazer? Vamos fazer um post para tarefas, é o nosso recurso, passando a tarefa como parâmetro return http.post(‘/tarefas’, tarefas). Só que aqui tem um pequeno detalhe, quando cadastrarmos essa tarefa o backend devolve um objeto justamente que representa a tarefa que acabamos de cadastrar.
+
+[02:05] O que vamos fazer para não precisar ficar recarregando toda vez o estado? Vamos pegar essa tarefa que foi recém adicionada e adicionar no nosso estado.
+
+[02:15] Vamos fazer o nosso encadeamento, .then(resposta => ), ou seja, deu tudo certo, já teremos o sucesso dessa resposta, vamos pegar essa resposta e o que vamos fazer?
+
+[02:31] Vamos fazer um commit de uma ação passando a tarefa como parâmetro, vamos só alterar, não queremos o contexto inteiro, vamos pegar só o que precisamos que é o commit. Na resposta, faremos o .then(resposta => commit(ADICIONA_TAREFA, resposta.data)). É o corpo da resposta que o Axios disponibiliza.
+
+[03:03] Agora vamos de fato adicionar essa mutação, temos um ADICIONA_PROJETO, nada se cria, tudo se copia. Não quero adicionar o projeto, quero adicionar uma tarefa, [ADICIONA_TAREFA](state, tarefa: ITarefa).
+
+[03:22] Não precisamos de nada do resto do código, vamos tirar. Queremos fazer um push não em projetos, em tarefas state.tarefas.push(tarefa). E não é um projeto que recebemos, é a tarefa em si.
+
+[03:33] Vamos recapitular. Nossa ação faz requisição com a tarefa, espera a resposta, quando a resposta volta com sucesso a API retorna um objeto com essas configurações, vai ter o ID, o nome, tudo da tarefa. E podemos pegar essa tarefa que acabou de voltar e adicionar no nosso estado local.
+
+[03:54] Outra alternativa, por exemplo, poderia fazer e pegar tudo de novo, ou seja, acabei de cadastrar, vou lá e pego a lista toda nova. Mas isso vai acarretar o quê? Que façamos um monte de requisições na API.
+
+[04:05] Aqui é sempre uma linha bem tênue entre configurarmos um sincronismo entre o nosso estado local e a API ao invés de sempre ficar lá toda hora pedindo: "Me dá a lista de tarefas, me dá a lista de tarefas". Não, fazemos um controle do nosso lado.
+
+[04:23] Nossa tarefa já está pronta para ser cadastrada, o que precisamos agora é configurar isso. Lá no componente de tarefas, "src > views > Tarefas.vue".
+
+[04:36] Já temos o método salvarTarefa que, inclusive, se você reparou junto comigo que ele está dando um warning no console, está falando: "Olha, você está chamando aqui no salvarTarefa, mas você não definiu esse cara, toma cuidado com isso".
+
+[04:50] Não é um erro, é só um warning, é um aviso. Agora, vamos descomentar ele para implementarmos, vamos precisar importar de novo a tarefa, tínhamos removido da outra vez.
+
+[05:00] Só que não vamos fazer um this.tarefas.push, faremos um this.store e o que fazemos quando queremos chamar uma ação, dispatch. E o que queremos fazer aqui? Um this.store.dispatch(CADASTRAR_TAREFA, tarefa.
+
+[05:27] Vamos corrigir porque não estamos cadastrando várias tarefas, estamos cadastrando uma só, vamos apagar o “S” de “TAREFAS".
+
+[05:31] Vou salvar e vamos lá em “tipo-acoes.ts” para corrigir esse nome, TAREFA. Perfeito, CADASTRAR_TAREFA, estamos cadastrando uma tarefa só. E por último, faltou corrigir no "index.ts” CADASTRAR_TAREFA. Perfeito, agora sim, o nome está certo.
+
+[05:48] Voltando para a nossa "Lista.vue” quando alguém chamar o método salvarTarefa faremos esse dispatch e o estado deveria cuidar disso, o Vuex. Vamos ver se isso agora funciona. Vou minimizar o VS Code.
+
+[06:02] Repara que ele já carregou, não tem mais warning, vou criar outra tarefa, vou colocar aqui uma “Refatoração do vuex”, por exemplo. Repara, já temos um pequeno problema aqui.
+
+[06:18] Onde está a minha lista de projetos? Se eu entrar em "projetos". Eu tenho a minha lista de projetos, eu volto para "tarefas". Está aqui, repara, estamos fazendo dispatch na lista de projetos só quando entramos na nossa lista mesmo, nosso componente de lista.
+
+[06:36] Por enquanto, vamos pegar o dispatch e trazer para a nossa lista de tarefas, é isso que vamos fazer.
+
+[06:42] Quando fizemos o setup das nossas tarefas, também vamos pedir a lista de projetos, por enquanto é isso que vamos fazer para resolver store.dispatch(OBTER_PROJETOS).
+
+[06:52] Vamos voltar no Alura Tracker, agora sim, está aparecendo, vou recarregar a página para garantir. Recarreguei, perfeito, "Alura Tracker 3.0". Vamos criar o “Refatoração do Vuex”, vou dar um “Play”. Vou contar 1, 2, 3, vou dar o "Stop".
+
+[07:10] Repara, tudo funcionou exatamente como estávamos esperando, ele fez um post, recebeu um 201, ou seja, foi criado com sucesso. Se olharmos essa resposta, "Resposta".
+
+[07:24] Ele retornar exatamente um objeto da tarefa, tem um projeto ali dentro, tem a descrição, duração em segundos e o ID, que é importante, o ID identifica essa tarefa de forma única no lado do backend. E pegamos esse cara e já adicionamos no estado.
+
+[07:41] Repara bem nesse sincronismo, não estamos toda hora pegando lista inteira, estamos em um mix, uma hora pegamos a lista toda, outra hora só adicionamos o recurso que acabamos de criar.
+
+[07:52] Mas não para por aqui, o que vamos desenvolver agora é dar para o usuário uma possibilidade de ele editar e trocar o nome da tarefa. Ele pode ter digitado errado ou, por exemplo, ele pode cadastrar uma tarefa, ele vai colocar aqui, por exemplo, "Estudando padrões de projeto".
+
+[08:16] E na hora de digitar projetos, ele digitou e inverteu, trocou o O pelo T, "projeot". Ele colocou que está no ByteBank, fez o play, fez o stop. E está ali, tem um erro de digitação, ele quer só corrigir esse nome. É isso que vamos fazer, mas vamos fazer um pouco diferente dessa vez.
+
+[08:37] Ao invés de criar uma nova rota, um novo componente e trocar usuário de tela, vamos abrir um modal para ele interagir e alterar essa tarefa. Olha só, como temos acesso ao Bulma do projeto. Só recapitulando, se dermos uma olhada na pasta "index.html". Nós temos um import do cdn do Bulma.
+
+[09:02] Temos acesso a tudo que esse framework de CSS nos oferece. E uma das coisas que ele nos oferece é a modal, acessei “bulma.io”, tem a documentação, tem os componentes, “Modal". E aqui tem um exemplo que eu estou procurando. Perfeito, é esse “Modal card”.
+
+[09:22] Eu quero um modal com um card lá dentro. Se repararmos aqui, tem um card bem bacana, ele tem um título, tem um botão de fechar, tem um save changes e um cancelar. Ou seja, é isso que queremos, vamos abrir e vai exibir um formulário.
+
+[09:37] Vamos pegar esse exemplo de código, vou fazer um “Ctrl + C” e um “Ctrl + V” lá no nosso “Tarefas.vue", vou fechar todo o resto que está aberto.
+
+[09:53] E vou criar em “Tarefas.vue” esse código, vou fazer um “Ctrl + V”, vou pedir para ele formatar o documento, “Format Document". Ele trouxe o modal aqui, vou salvar. Vou olhar no Alura Tracker, não tivemos erro nenhum.
+
+[10:15] Por quê? O que acontece? Para ele exibir essa modal, se eu não me engano, ele precisa de uma classe chamada show. Vamos ver se eu estou correto, "F5". "bulma.io". Não, não é essa classe, vamos ver o que ele está falando no site, modal, modal.
+
+[10:38] Para ativar o modal, apenas adicione o is-active. Não é show, é o <div class=”modal is-active”>. Vamos corrigir no código. Ou seja, está ativa.
+
+[10:52] Só que não conseguimos cancelar. O que vamos ter que fazer? Quando o usuário selecionar uma tarefa vamos abrir a modal, adicioná-la ao input e fazer requisição para fazer o update.
+
+[11:06] E teremos essa opção de cancelar e fechar. Não sai daí, estou te esperando na nossa próxima aula para adicionarmos vida à essa modal e fazermos o update de uma tarefa.
+
+@@04
+Criando uma modal de edição
+
+[00:00] Terminamos a última aula coma modal aberta, vamos dar uma olhada nesse componente, estamos no componente de tarefas dentro da pasta views. E definimos lá a modal, e o que faz a modal abrir ou fechar é essa classe is-active.
+[00:14] Temos que ter uma condição, dado alguma coisa essa classe vai ou não fazer parte desse elemento. Vamos fazer isso, acompanha comigo e vamos criar um estado local.
+
+[00:27] Logo abaixo da minha lista de componentes, eu vou implementar o elemento do data (), esse cara é responsável pelo meu estado local, ele retorna um objeto return {, esse objeto de fato é o meu estado local e vou ter uma tarefa, tarefa:.
+
+[00:42] Inicialmente esse cara é nulo, mas a minha tarefa, e vamos até melhorar o nome dela, vamos dizer que eu tenho uma tarefaSelecionada: null.
+
+[00:52] A minha tarefa pode ser nula, ou seja, não tem nenhuma tarefa selecionada, ou ela pode ser uma tarefa em si, precisamos dizer para o typescript que isso é possível.
+
+[01:04] Vamos dizer que esse cara é uma as ITarefa | null, ou seja, ele pode ser uma tarefa, mas ele pode ser nulo, agora, já está compilando, essa propriedade do meu estado local pode ser nulo ou pode ser uma ITarefa.
+
+[01:26] Agora, dada essa condição, já podemos ajustar o código modal e fazer um bind, fazer um link com a propriedade de classe.
+
+[01:36] O que queremos fazer aqui? Esse cara vai receber um objeto, e o que indicamos na nossa classe? O primeiro, o nome da propriedade é a classe que queremos que seja aplicada e o segundo é a condição, <div class=”modal” :class="{ 'is-active': tarefaSelecionada }". Para que essa classe seja ativa eu quero que exista uma tarefa selecionada, vou passar como valor para essa propriedade.
+
+[01:59] O nome da propriedade é a classe que vai ser aplicada e o valor é a condição para ela ser aplicada. Se eu voltar na “Alura Tracker” agora, repara, a minha modal está escondida. O que eu quero fazer agora? Quando o usuário clicar em uma tarefa, vamos selecionar ela, vamos implementar esse clique.
+
+[02:18] Lá dentro de “components > Tarefa.vue". Vamos ter aqui que quando o usuário clicar aqui na nossa <div class=”columns” @click=”tarefaClicada”, ou seja, ele clicou em qualquer parte do elemento, vamos dizer que foi a tarefa clicada.
+
+[02:39] E agora vamos implementar esse método tarefaClicada. Logo após de props, eu vou dizer que são os methods: {>, o método que eu quero dizer é o tarefaClicada () : void { ele não vai retornar nada, ele é void. E o que eu quero fazer aqui? Eu quero emitir um evento porque eu, enquanto esse componente, que só sei exibir uma tarefa, também vou agora saber dizer que uma tarefa foi clicada.
+
+[03:04] Vou criar nossa opção de emits: ['aoTarefaClicada'], ela recebe um array com todos os eventos que podemos emitir e esse é o nome do evento que eu vou emitir.
+
+[03:21] E agora sim, no meu método, this.$emit('aoTarefaClicada', this.tarefa) o primeiro argumento, repara que ele já até auto completou para mim, é o nome do evento que eu quero emitir, e o segundo é o que eu vou passar como um parâmetro, que vai ser a minha tarefa.
+
+[03:42] Agora, do outro lado basta ouvirmos, vamos na nossa "Tarefas.vue", vamos colocar aqui um @aoTarefaClicada="selecionaTarefa". Vou pedir para ele formatar o documento para mim, agora está mais legível.
+
+[04:04] Vou agora criar esse método, methods, selecionarTarefa (tarefa: ITarefa) { > this.tarefaSelecionada = tarefa, vamos receber uma tarefa por parâmetro e o que vamos fazer com essa tarefa? Vamos vincular com o nosso estado local, vamos atribuir a tarefa que recebemos como parâmetro.
+
+[04:27] Quando o usuário clicar vamos definir ela como a tarefa selecionada, isso deve fazer com que a modal apareça. Vamos testar. Vou voltar, vou atualizar a página, cliquei em “Refatoração do vuex”, apareceu, vou recarregar, cliquei, apareceu.
+
+[04:45] A nossa lógica de mostrar já está funcionando, vamos seguir e vamos adicionar agora a lógica de esconder. Essa modal já tem algum html que pegamos lá no Bulma. E podemos colocar na modal p class=”modal-card-title”>Editando uma tarefa<. Vai ser o título dessa modal, modal card title.
+
+[05:09] Vamos traduzir o botão de ação para Salvar alterações. E o botão de cancelar, Cancelar. Perfeito. O que queremos fazer? Se o usuário clicar em “Cancelar”, ou se ele clicar no “x” que fica no topo da modal, do lado direito, vamos esconder essa modal.
+
+[05:31] Ele vai ouvir pelo clique e vai chamar o método fechar modal, button @click="fecharModal". Tanto no Cancelar quanto no x que fica no canto superior direito.
+
+[05:43] Falta implementar esse método, vamos implementar agora, methods aqui e para fecharmos a modal fecharModal () { vamos dizer que tarefaSelecionada, > this.tarefaSelecionada = null, ou seja, atribuímos um valor null, ou seja, ela deixou de existir, não temos tarefa selecionada. Isso deve fazer a modal abrir e fechar conforme necessário.
+
+[06:08] Vamos dar uma testada. Cliquei, abriu, cliquei no botão “x” e fechou. Cliquei e abriu, cliquei no “Cancelar”, fechou. O último ajuste, vamos mudar o cursor quando o usuário colocar o mouse em cima do componente.
+
+[06:24] Vamos no nosso "Tarefa.vue". Aqui temos um columns, deixa eu ver se temos algum CSS, não tem. Vamos colocar. Vamos chamar de clicável, <div class=”columns clicavel” @click="tarefaClicada".
+
+[06:41] E vamos adicionar um estilo <style scoped> > .clicavel { > cursor: pointer; quando eu tiver essa classe clicável eu quero que o cursor seja pointer, ou seja, ele fica com aquela mão indicando que essa tarefa é clicável.
+
+[06:54] O cursor vira a mão, quando clicamos abre a modal, quando clicamos em “Cancelar”, a modal fecha. Metade já está pronto, agora temos que adicionar o comportamento de editar essa tarefa.
+
+[07:06] E agora via ser bem tranquilo, vamos voltar para dentro da modal. Aqui onde tem o card-body, tem um Content comentado aqui. Exatamente dentro do card-body queremos colocar um input para o usuário poder digitar e alterar a modal.
+
+[07:26] Vamos pegar o input já pronto, vamos dar uma olhada no "Formulário.vue", o formulário tem um input, a tag div, com a classe Field, tem uma label e um input. É essa mesma estrutura que queremos, vamos pegar “Ctrl + C”, vou colar aqui dentro de “Tarefas.vue”, vou pedir para o VS Code formatar o código para mim.
+
+[07:50] Perfeito. Agora vamos ajustar, não vai ser mais nomeDoProjeto, vai ser <label for=”descricaoDaTarefa” class=”label”> Descricao </label>.
+
+[08:09] O que mais? O model vai ser a v-model=”tarefaSelecionada?.descricao”, se existir uma tarefaSelecionada via ser a descrição. Repara que ele vai reclamar que não podemos fazer esse opcional dentro do v-model.
+
+[08:29] Como queremos fazer esse model com a propriedade de descrição, vamos remover essa condicional ? e vamos movê-la lá para cima. O que eu quero aqui? Eu quero que esse componente só exista caso a tarefaSelecionada for verdadeira, tenha valor. Vou fazer um <div class=”modal” :class=”{ ‘is-active’: tarefaSelecioanda }” v-if="tarefaSelecionada".
+
+[08:59] Esse elemento, todo esse template só vai ser renderizado se uma tarefa foi selecionada.
+
+[09:05] Agora podemos sem medo fazer um bind do v-model=”tarefaSelecionada.descricao”, do contrário, se não fizéssemos tudo isso quando tentássemos renderizar modal, ele já ia reclamar dizendo: "Você está tentando acessar a descrição de undefined, eu não tenho tarefa selecionada". Agora sim, já está pronto para funcionar.
+
+[09:27] Vamos testar, vamos só ajustar o ID, o ID não é nomeDoProjeto, é id=”descricaoDaTarefa”. Salvei. Vamos ver se isso funciona.
+
+[09:37] Não tem erro no console, vou recarregar a página, "F5". Cliquei, ele já mostrou para mim o título “Estudando padrões de projeot”, o projeto está digitado errado.
+
+[09:47] Agora para finalizar e botar a cereja em cima do bolo já sabemos o que temos que fazer, é criar uma action e uma mutation.
+
+@@05
+Fechando um modal de edição
+
+[00:00] O que queremos fazer aqui? Vamos fechar todas as abas e o terminal. Eu vou na nossa “index.ts”, precisamos criar um método ALTERAR_TAREFA e o método que altera dois casos, a ação que vai fazer a requisição para API e mutação que vai alterar meu estado local.
+[00:24] Vamos começar pelos tipos, dentro da pasta “tipos-acoes.ts” vamos criar o novo tipo que chama export const ALTERAR_TAREFA = ‘ALTERAR_TAREFA’,
+
+[00:43] E também vamos mencionar o tipo da mutação “tipo-mutacoes.ts”, que é ALTERA, vamos seguir a mesma convenção de nome, teremos um export const ALTERA_TAREFA = ‘ALTERA_TAREFA’. Repara, o ALTERAR_TAREFAé uma ação, o ALTERA_TAREFA é uma mutação.
+
+[00:59] Agora vamos implementar. Já temos alguma coisa pronta aqui do projeto, temos o ALTERAR_PROJETO, nada se cria, tudo se copia. Só que eu não quero alterar um projeto, eu quero alterar uma tarefa, [ALTERA_TAREFA] ({commit }, tarefa: ITarefa). Ele já auto completa, faz um import para mim. Mais uma vez, não vamos precisar do contexto, mas vamos precisar do commit,
+
+[01:25] Vamos pegar só o que vamos precisar. Não vamos receber um projeto, vamos receber uma tarefa, vamos ajustar.
+
+[01:36] Ele está reclamando que uma tarefa, não tem ID provavelmente porque não colocamos isso no tipo, vamos colocar agora, em "ITarefa.vue" vai ser id: number. Agora sim, agora mapeamos o ID da tarefa.
+
+[01:54] E já vamos fazer um bem parecido, caso a nossa promise, ou seja, nossa tarefa for executada com sucesso, for alterada com sucesso, vamos fazer o commit da mutação .then(resposta => commit(ADICIONA_TAREFA, tarefa)) passando a tarefa que acabamos de alterar como parâmetro.
+
+[02:23] Vamos recapitular, criamos a nossa ação ALTERAR_TAREFA que vai fazer o commit da mutação, ou seja, vai alterar e sincronizar o estado local quando for um sucesso. E além disso, ele está fazendo put, não está fazendo post, queremos alterar.
+
+[02:41] Por fim, temos que adicionar agora a mutação. Vamos pegar o código, nada se cria, tudo se copia [ALTERA_TAREFA](state, tarefa: ITarefa).
+
+[03:04] Vamos ajustar, const index = state.tarefas.findIndex(t => t.id == tarefa.id). Recapitulando a nossa mutação, encontramos a tarefa no nosso estado local, altera ela e pronto, sincronizamos. Agora, o que tem no nosso estado local representa o que tem na nossa API.
+
+[03:22] Vamos salvar isso e agora a única coisa que temos que fazer para finalizar é lá na nossa modal "Tarefas.vue", quando o usuário clicar em “Salvar”, vamos poder colocar aqui um @click="alterarTarefa", vamos chamar esse método.
+
+[03:48] Vamos implementar. Não vamos receber por parâmetro porque a tarefaSelecionada () { está no nosso estado local, e o que vamos fazer aqui? Vamos fazer um this.store.dispatch(ALTERAR_TAREFA, this.tarefaSelecionada).
+
+[04:12] Escrevemos muito código, vamos testar, vou voltar para a minha área de trabalho. Ele está reclamando, está dizendo: "Olha, essa tarefa não tem um id".
+
+[04:22] Isso porque o nosso compilador, o nosso servidor não fez o reload dessa interface que alteramos. Vou parar e vou subir um npm run serve novo para ele compilar e pegar essa interface atualizada.
+
+[04:39] Está subindo, terminou de subir. Vamos voltar, atualizei, perfeito, "F5". Funcionou. O que eu quero aqui? Quero editar a tarefa, vou confirmar, não é “Estudando padrões de projeot” é “Estudando padrões de projeto”, vou salvar as alterações.
+
+[04:55] Perfeito, ele já me deu um put, é exatamente o que acabamos de alterar. Faltou fechar a modal. Quando queremos fechar a modal? Quando for um sucesso.
+
+[05:07] Voltando para a nossa store, quando chamamos a nossa ALTERAR_TAREFA estamos trabalhando aqui com uma promise, essa promessa podemos encadear e dizer que quando essa promessa se cumprir eu quero chamar o meu método .then((0 => this.fecharModal).
+
+[05:29] Vou executar esse método. Quando o meu dispatch, a minha ação for executada eu vou fechar minha modal. Vou voltar para o Alura Tracker, vamos carregar o alterar “Estudando padrões de projeto”. Perfeito, agora tudo funciona exatamente como queríamos.
+
+[05:51] Se eu recarregar a página, está lá a nossa tarefa alterada porque agora estamos fazendo um sincronismo com a API. Conseguimos cumprir a missão, migramos os nossos recursos para o nosso Vuex que já está plugado na API.
+
+[06:08] Mas repara comigo, tem uma coisa que está me incomodando, não sei se está incomodando você também. Vamos dar uma olhada na nossa store “index.ts". Repara, ela está crescendo e ela está crescendo muito, temos várias ações, várias mutações e isso está ficando um pouco caótico. Repara nesse monte de import, gigantesco. Parece que isso vai ficar problemático de manter porque está ficando muito grande.
+
+[06:36] E estamos misturando as ações de uma tarefa com as ações de um projeto, está meio misturado, precisamos dar um cuidado aqui, polir isso aqui e organizar para ficar bem bacana e melhorar a manutenção do nosso código.
+
+[06:52] E o Vuex já tem uma receita de bolo perfeita para fazermos isso. É isso que faremos na próxima aula. Te vejo lá.
+
+@@06
+E se… eu não quisesse utilizar promise?
+
+Nós utilizamos promessas para lidar com as chamadas HTTP. Mas temos outras opções para fazer essas requisições, você sabe quais são elas?
+
+Async / Await.
+ 
+Alternativa correta! Exatamente! Essa é uma alternativa a sintaxe das promises. Se você quiser mergulhar mais fundo nesse conceito, confere aqui um artigo completinho sobre esse tópico.
+Alternativa correta
+HTTPS.
+ 
+Alternativa correta
+Callbacks.
+
+@@07
+Organizando o estado - projetos
+
+[00:00] Muito bacana o que desenvolvemos até aqui, já temos o nosso Vuex plugado na API, conforme as requisições vão e vem vamos atualizando nosso estado. Seja quando criamos, quando atualizamos ou quando listamos, está tudo bem sincronizado, está redondo, funcionando como deveria.
+[00:16] Porém, já falamos na última aula, o estado está ficando grande demais, ele está crescendo fora de controle. Estamos misturando tarefas com projetos, está tudo misturado, as ações estão misturadas.
+
+[00:31] Olha aqui, o tamanho desse import, está gigantesco. Precisamos dar uma organizada nisso e precisamos começar a tratar com um pouco mais de carinho a nossa store.
+
+[00:43] O que poderíamos fazer, pensando em JavaScript? Podemos separar as mutações em um arquivo para elas, separar as ações em um arquivo para elas também, quebrar isso, cada propriedade em uma constante, exportando um objeto.
+
+[00:59] Isso resolveria, porém como utilizamos o Vuex e ele já pensou que isso poderia acontecer, podemos trabalhar com módulos. E um módulo nada mais é do que um pequeno agrupamento de estado, ações, mutações e por aí vai.
+
+[01:15] Começamos a separar por contexto, podemos, claro, ter o estado global, mas cada recurso vai ter o seu módulo bem pequeno, um pouco mais enxuto e mais fácil de manter.
+
+[01:27] E não tem mistério, é bem parecido com o que temos feito até agora, basicamente consiste em definir uma interface que vai representar o estado do módulo, as ações e mutações, por aí vai.
+
+[01:41] É bem parecido com o que temos feito, vamos botar a mão na massa. Eu e você vamos juntos começar a criar o módulo para os projetos.
+
+[01:50] Dentro da nossa pasta store vamos criar outra pasta, vamos chamar de “modulos”. Essa pasta de “módulos”, vamos criar outra pasta lá dentro que vamos chamar de “projeto”. Projeto é o nome do nosso módulo e, por fim, vamos criar um arquivo “index.ts”. Aqui vamos criar o nosso módulo.
+
+[02:08] Como eu já falei com você, vamos criar uma interface que representa um estado desse módulo, interface EstadoProjeto {, porque é do módulo projeto. Essa interface vai ter um array e uma lista de projetos projetos: IProjeto[], vamos definir. Já fez o import.
+
+[02:37] Vamos precisar exportar esse cara, confia em mim, você vai entender daqui a pouco porque precisamos exportá-lo, export interface EstadoProjeto {.
+
+[02:43] Agora que já temos o estado desse módulo, vamos criar o módulo em si, constante projeto, que é o nome do módulo, const projeto.
+
+[02:54] Esse projeto tem um tipo, que tipo é esse? const projeto: Module =. Esse cara é um módulo do Vuex, repara que ele já até auto completou para mim.
+
+[03:06] E quando eu digo que ele é um módulo eu preciso dizer duas coisas para ele, eu preciso dizer qual é o estado desse módulo e qual é o meu estado global, const projeto: Module<EstadoProjeto>.
+
+[03:16] O estado desse módulo é muito fácil, acabamos de fazer, o estado global é o estado da minha store global, é esse estado interface Estado. Repara, também não estamos exportando essa interface, vamos exportar agora, export interface Estado. E agora vamos dizer que o Estado é o meu estado global, const projeto: Module<EstadoProjeto, Estado>.
+
+[03:35] Eu tenho meu estado e o estado do projeto. Já podemos começar a definir esse módulo, já podemos também fazer o export desse projeto, export const projeto: Module<EstadoProjeto, Estado>.
+
+[03:48] Agora zero novidades, vamos definir as nossas mutações, mutations:'{. E também vamos definir as nossas ações, actions: {. E que ações e mutações são essas? As de projetos, vamos fazer um “Ctrl + X”, “Ctrl + V” em "index.ts/store".
+
+[04:04] Vou pegar todas as mutações de projetos de “index.ts/store” e jogar para “index.ts/projeto”. Por enquanto só vamos fazer esse copy paste aqui, vou pegar também todas as ações dos projetos em "index.ts/store” e colocar em “index.ts/projeto”.
+
+[04:22] Agora vou pedir para o VS Code formatar o código para mim e vou pedir para ele fazer esses imports,adiciona todos os imports que estão faltando.
+
+[04:31] Já está compilando esse arquivo, já tenho minha interface que representa meu estado desse módulo, já tenho meu módulo que tem suas ações e suas mutações. Vou salvar esse cara.
+
+[04:46] O que eu preciso fazer agora? Inicialmente, vamos lá no nosso “index.ts/store” que representa nosso estado global. Eu vou remover todos os imports que não são mais necessários. Repara que ele já está bem menor.
+
+[05:01] Porém agora eu não tenho mais uma lista de projetos no meu estado, essa lista de projetos não é mais global. Posso tirar também o import da interface createStore.
+
+[05:14] Eu não tenho mais uma lista de projetos no meu estado global, eu tenho um módulo que tem esse estado dentro dele. No meu estado global eu vou ter uma propriedade que tem o nome do meu módulo, projeto:.
+
+[05:29] E qual é o tipo desse estado, dessa propriedade? É o meu estado de projetos projeto: EstadoProjeto, por isso eu falei para você confiar em mim e já exportar aquela interface,
+
+[05:40] Agora eu já posso iniciar o meu estado com o meu estado filho que é o projeto, que vai ser um array de projetos, projeto: { projetos: [].
+
+[05:51] Agora eu já tenho configurado o nome do meu módulo com o estado local dentro dele, que já está inicializado. Eu iniciei de forma global o meu estado de projetos.
+
+[06:04] Não estamos tendo nenhum erro de compilação, parece que está tudo bem. Vamos para aplicação ver se está tudo funcionando. Minimizei o VS Code, ele reclamou aqui, falha ao compilar, “src/components/Formulario”.
+
+[06:20] Você está usando esse parâmetro projeto, ele está implicitamente como any, ele quer dizer que ele não sabe o que esse é cara, o typescript não vai deixar passar, ele não vai compilar.
+
+[06:30] Vamos corrigir, em “src/components/Formulario.vue”. Ele já está reclamando aqui. Por que ele está reclamando? Eu não tenho mais projetos no meu estado global, eu tenho projetos: computed(() => store.state.projeto.projetos.
+
+[06:50] Parou o erro de compilação, vamos voltar na aplicação, "Alura Tracker". Ele continua dando erro, mas mudou, um erro novo, um erro melhor. Agora ele está reclamando de “Formulario.vure” que está dentro de “projetos” que está dentro de “views” que está dentro de “src”.
+
+[07:04] Ele está falando: "Olha, projetos não existe nesse estado aqui, eu não sei o que você está falando. Será que você não quis dizer ‘projeto’?"
+
+[07:12] Vamos lá, "VS Code". O typescript é bem bacana. "views > projetos > Formularios.vue". Ele está reclamando dessa constante. Porque não tem mais projetos direto, eu tenho const projeto = this.store.state.projeto.projetos.find. O estado do meu módulo e o estado dele em si, o nome do meu módulo e o estado dele.
+
+[07:33] Vou salvar, vou voltar no Alura Tracker Passou, mudou o componente, um erro novo, um erro melhor. “src > views > projetos > Lista.vue”, a mesma coisa, dentro de estado eu não tenho mais projetos.
+
+[07:46] Vamos corrigir, ele esta agora em Lista.vue, aqui é projetos: computed(() => store.state.projeto.projetos). Agora sim, salvei. Vou voltar no Alura Tracker.
+
+[07:55] Está tudo funcionando, vou recarregar, "F5". Tudo funcionando. Ele está reclamando de uma action aqui. OBTER_PROJETOS, alguma coisa está mal. O que está faltando para ele enxergar essa ação?
+
+[08:09] Eu vou te dizer, esquecemos de indicar para o Vuex que ele tem um módulo agora, não configuramos, criamos esse módulo todo, definimos o estado inicial, mas não complementamos na hora de criar a store que ela tem um módulo.
+
+[08:26] Em “index.ts/módulos/projeto”, embaixo das minhas ações eu vou dizer que eu tenho um modules: { > projeto. Deixa eu ver se ele vai importar para mim. Ele já fez o import para mim, import projeto from ./modulos/projeto.
+
+[08:45] Vou salvar esse cara. Vamos voltar no Alura Tracker agora, recarreguei, "F5". Ele agora está funcionando, carregou, tem a minha lista de projetos. "projetos". Está tudo aqui.
+
+[08:58] Vamos criar um projeto novo, vou criar outro projeto aqui, vou chamar de Estudos pessoais, "Novo projeto > Estudos pessoais > Salvar".
+
+[09:07] Salvou, está aqui, “Estudos pessoais”. Vou editar, "Ícone do lápis do lado de Estudos pessoais". Vou colocar no título "parte 1 > Salvar".
+
+[09:15] Salvou, vou deletar, deletou. Nosso estado agora já está funcionando como módulo. Vamos conseguir diminuir bastante a responsabilidade do global.
+
+[09:30] Cada recurso agora pode ter o seu módulo específico e fazemos coisas menores que são mais simples e mais fáceis de escopar, o escopo fica menor, fica mais fácil de dar manutenção.
+
+[09:42] Mais uma coisa que fizemos melhorando a experiência do desenvolvedor e agora, ainda assim, continuamos plugados na API. Tudo continua funcionando e agora de uma forma que é mais fácil de manter.
+
+[09:54] É isso, mais ainda tem muita coisa legal para desenvolvermos dentro do Alura Tracker. Te vejo na próxima aula.
+
+@@08
+Para saber mais: Vuex Modular
+
+Se você quiser entender melhor esse conceito, a documentação é uma das melhores fontes.
+
+https://next.vuex.vuejs.org/guide/modules.html
+
+@@09
+Faça como eu fiz: Extraindo actions e mutations das tarefas
+
+Já refatoramos e extraímos o código da store relacionado aos projetos. Agora, chegou a vez das tarefas. Sua missão, se decidir aceitá-la, é refatorar e extrair as actions e mutations relacionadas às tarefas.
+
+Legibilidade conta, e um código bem escrito faz a pessoa que desenvolve mais feliz.
+Se precisar de ajuda nessa atividade, confira logo abaixo o gabarito:
+
+src\store\modulos\tarefas\index.tsCOPIAR CÓDIGO
+import http from "@/http";
+import ITarefa from "@/interfaces/ITarefa";
+import { Estado } from "@/store";
+import { OBTER_TAREFAS, CADASTRAR_TAREFA, ALTERAR_TAREFA } from "@/store/tipo-acoes";
+import { DEFINIR_TAREFAS, ADICIONA_TAREFA, ALTERA_TAREFA } from "@/store/tipo-mutacoes";
+import { Module } from "vuex";
+
+export interface EstadoTarefa {
+  tarefas: ITarefa[]
+}
+
+export const tarefa: Module<EstadoTarefa, Estado> = {
+  state: {
+    tarefas: [],
+  },
+  mutations: {
+    [DEFINIR_TAREFAS](state, tarefas: ITarefa[]) {
+      state.tarefas = tarefas
+    },
+    [ADICIONA_TAREFA](state, tarefa: ITarefa) {
+      state.tarefas.push(tarefa)
+    },
+    [ALTERA_TAREFA](state, tarefa: ITarefa) {
+      const index = state.tarefas.findIndex(t => t.id == tarefa.id)
+      state.tarefas[index] = tarefa
+    },
+  },
+  actions: {
+    [OBTER_TAREFAS]({ commit }) {
+      http.get('tarefas')
+        .then(response => commit(DEFINIR_TAREFAS, response.data))
+    },
+    [CADASTRAR_TAREFA]({ commit }, tarefa: ITarefa) {
+      return http.post('/tarefas', tarefa)
+        .then(resposta => commit(ADICIONA_TAREFA, resposta.data))
+    },
+    [ALTERAR_TAREFA]({ commit }, tarefa: ITarefa) {
+      return http.put(`/tarefas/${tarefa.id}`, tarefa)
+        .then(() => commit(ALTERA_TAREFA, tarefa))
+
+    },
+  }
+}COPIAR CÓDIGO
+Repare que inicializamos o estado com a lista de tarefas vazias. No Alura Tracker isso é necessário pois precisamos saber quando essa lista está sem elementos.
+
+src\store\index.tsCOPIAR CÓDIGO
+import { createStore, Store, useStore as vuexUseStore } from "vuex";
+import { InjectionKey } from 'vue'
+import { NOTIFICAR } from "./tipo-mutacoes";
+import { INotificacao } from "@/interfaces/INotificacao";
+
+import { EstadoProjeto, projeto } from "./modulos/projeto";
+import { EstadoTarefa, tarefa } from "./modulos/tarefas";
+
+export interface Estado {
+    notificacoes: INotificacao[],
+    projeto: EstadoProjeto,
+    tarefa: EstadoTarefa
+}
+
+export const key: InjectionKey<Store<Estado>> = Symbol()
+
+export const store = createStore<Estado>({
+    state: {
+        notificacoes: [],
+        projeto: {
+            projetos: []
+        },
+        tarefa: {
+            tarefas: []
+        }
+    },
+    mutations: {
+        [NOTIFICAR] (state, novaNotificacao: INotificacao) {
+
+            novaNotificacao.id = new Date().getTime()
+            state.notificacoes.push(novaNotificacao)
+
+            setTimeout(() => {
+                state.notificacoes = state.notificacoes.filter(notificacao => notificacao.id != novaNotificacao.id)
+            }, 3000)
+        }
+    },
+    modules: {
+        projeto,
+        tarefa
+    }
+})
+
+export function useStore(): Store<Estado> {
+    return vuexUseStore(key)
+}COPIAR CÓDIGO
+src\views\Tarefas.vueCOPIAR CÓDIGO
+  // codigo anterior omitido
+  setup() {
+    const store = useStore();
+    store.dispatch(OBTER_TAREFAS);
+    store.dispatch(OBTER_PROJETOS);
+    return {
+      tarefas: computed(() => store.state.tarefa.tarefas),
+      store,
+    };
+  },
+
+  @@10
+O que aprendemos?
+
+Nessa aula, você aprendeu como:
+A importância de manter a saúde do projeto;
+Sempre que identificamos um problema conhecido, como a store com código demais, precisamos ter uma arquitetura alternativa para que o projeto possa ser mantido muito muito mais tempo antes de virar um legado difícil de trabalhar.
+Promises e async/await;
+Vimos na atividade de alternativas que temos outra forma de lidar com métodos assíncronos.
