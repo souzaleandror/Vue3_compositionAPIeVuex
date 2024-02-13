@@ -834,3 +834,286 @@ A importância de manter a saúde do projeto;
 Sempre que identificamos um problema conhecido, como a store com código demais, precisamos ter uma arquitetura alternativa para que o projeto possa ser mantido muito muito mais tempo antes de virar um legado difícil de trabalhar.
 Promises e async/await;
 Vimos na atividade de alternativas que temos outra forma de lidar com métodos assíncronos.
+
+#### 13/02/2024
+
+@03-Composition API
+
+@@01
+Projeto da aula anterior
+PRÓXIMA ATIVIDADE
+
+Caso queira começar daqui, você pode baixar o projeto da aula anterior nesse link.
+
+https://github.com/alura-cursos/tracker-3/tree/aula-2
+
+@@02
+Lifecycle Hooks
+
+[00:00] Legal o que construímos até aqui, já migramos o nosso estado local para combinar uma API nova com o Tracker em si, todas as tarefas e projetos já vem direto da API. Mandamos e obtemos dados da API conforme o usuário interage com a nossa interface.
+[00:19] E agora vamos cuidar um pouco mais dos nossos componentes e da experiência do desenvolvedor. O usuário, eu acredito que ele já vai estar bastante satisfeito com essa versão nova, ele já não perde mais tudo que ele inseriu, isso vai ficar persistido dentro da API.
+
+[00:34] E agora precisamos cuidar do nosso projeto para as próximas pessoas que vão trabalhar aqui desenvolvendo e alterando essas funcionalidades.
+
+[00:41] Vamos para o VS Code e vamos dar uma olhada no componente Formulario de projeto. Esse componente está em "src > views > projetos > Formulario.vue". Vamos juntos analisar como construímos esse componente e como usamos as coisas ali dentro.
+
+[00:59] Vamos começar pelo estado local, temos um método data que retorna um objeto, e esse objeto tem uma propriedade chamada nomeDoProjeto que se inicia com uma string vazia. Isso é o nosso estado local.
+
+[01:15] Esse nomeDoProjeto é utilizado quando o componente é montado, dentro de um ciclo de vida do Vue. Onde mais usamos esse nomeDoProjeto? Quando salvamos o projeto, ou seja, quando cadastramos ou alteramos um projeto existente.
+
+[01:30] O que mais? No método lidarComSucesso que desenvolvemos, ele notifica e altera a rota, o usuário redireciona ele para a rota de projetos. E por enquanto é só.
+
+[01:42] Estamos fazendo isso utilizando a options API do Vue. O que é essa options API? É justamente conseguirmos construir um componente através dessa função que importamos do Vue, a defineComponent, ou seja, definir um componente.
+
+[01:57] E passamos um objeto cheio de propriedades que até o typescript já conhece, ou seja, o defineComponent vai ter nome, proxy, um mounted que é do ciclo de vida, data que é o estado local, métodos que vão estar disponíveis.
+
+[02:12] E o setup em si que já é da composition API que falamos algumas vezes no decorrer do desenvolvimento do Tracker.
+
+[02:21] O que vamos fazer agora? Se analisarmos bem a fundo o nomeDoProjeto, que simplesmente nenhum estado local repara, é só uma variável, uma string, nem é um objeto complexo, mas ele já se espalha. Repara, ele aparece no return, aparece no mounted, aparece no lidarComSucesso. Ele está em todo lugar, ou seja, ele é muito importante.
+
+[02:44] E conforme esse componente cresce e vão entrando novos métodos, e outras coisas aqui, ele tende a se separar, código que está relacionado vai acabar ficando distante um do outro.
+
+[02:56] Conseguimos mitigar e controlar isso utilizando a composition API. Repara comigo aqui que definimos a store e já importa um hook chamado notificar, e retornamos isso no final do setup.
+
+[03:12] Conforme retornamos isso no final do setup, dentro do nosso componente podemos fazer, por exemplo, this.notificar ou this.store.dispatch e uma ação.
+
+[03:25] O setup permite que configuremos o componente como alternativa a essa options API. Vamos começar a utilizar mais a composition API e menos a de opções.
+
+[03:38] Vamos começar pelo ciclo de vida. Repara que o que queremos fazer é que quando esse componente for montado vamos lá utilizar o Vue Router, dá uma olhada no ID para ver se existe um ID, se o ID existe vamos tentar obter o projeto. É isso que vamos migrar para a nossa composition API. Vamos lá.
+
+[03:58] Vou comentar tudo que desenvolvemos no mounted, comentei, não vai ter mais. Se eu salvar isso, voltar para o nosso projeto, ir na listagem de projetos e tentar acessar um projeto existente, ele já não está mais tentando obter esse projeto de lugar nenhum, eu tenho um ID na URL, mas ele não traz nada para mim.
+
+[04:20] Vamos agora tratar de fazer isso dentro do nosso método setup. A primeira coisa que precisamos fazer é ter acesso as props e é justamente isso que recebemos por parâmetro, são as props (props).
+
+[04:33] E já conseguimos ter acesso ao ID fazendo props.id. Repara que o typescript já completa, ele entende que existe essa propriedade props que definimos logo no começo do componente.
+
+[04:47] O que queremos fazer é justamente um if esse cara. Vamos definir aqui um if (props.id) {. Se essa propriedade existe queremos fazer alguma coisa. Vamos dar uma olhada no que fazemos, vamos fazer um “Ctrl + C” e um “Ctrl + V” dentro do if. Vou descomentar tudo isso. E vou pedir para ele fazer um Format Document para ficar tudo formatado.
+
+[05:14] Repara comigo que já conseguimos acessar a props. Muito importante isso, dentro do setup não existe this, não existe o componente ainda, não conseguimos fazer this. nada.
+
+[05:30] Vamos migrar os imports const store = useStore() e const { notificar } = useNotificar() mais para cima. E com isso já conseguimos resolver o problema da store, não precisa mais fazer this.store para acessar o estado. E o ID não é mais this.id, é props.id.
+
+[05:51] Já conseguimos encontrar esse projeto e verificar se ele existe, só que não temos this dentro do setup, não conseguimos fazer o nomeDoProjeto dessa forma.
+
+[06:05] Qual é a alternativa que temos? Vamos também comentar o nosso método data, vamos deixar ele comentado por enquanto. E de alguma forma vamos precisa definir ele dentro do setup. Como trabalhamos com esse método diferente de escrever componentes e com variáveis reativas.
+
+[06:27] No caso do Vue, quando queremos criar uma variável que vai se modificar, ou seja, ela precisa ser observada de alguma forma, fazemos um import de um método chamado ref.
+
+[06:40] Vamos onde estamos fazendo os imports do Vue e vamos importar aqui também o ref, por import { defineComponent, ref } from “vue”;. Esse método é uma função que vai nos trazer uma variável reativa, ou seja, conforme ela se modificar, o Dom vai se renderizar novamente e assim sucessivamente.
+
+[06:57] E o que queremos fazer é no nosso setup dizer que uma constante chamada const nomeDoProjeto = ref(“ “) é uma referência para string. E agora vamos poder fazer o nomeDoProjeto receber esse nome que veio da API, vamos conseguir atribuir esse nome.
+
+[07:23] E aqui tem um pequeno pulo do gato, como é uma variável reativa, para termos acesso ao valor temos uma propriedade ali dentro chamada value, nomeDoProjeto.value = projeto?.nome || “”;. Repara, o nomeDoProjeto é uma variável reativa, mas o valor dela está aqui dentro de value.
+
+[07:47] Repara que o nomeDoProjeto, já temos até um typescript aqui. É uma referência para uma string e para ter acesso ao valor eu faço .value. E agora podemos vir no return e retornar o nomeDoProjeto.
+
+[08:08] Repara que não temos mais nenhum erro de compilação aqui, o this.nomeDoProjeto em outros locais funciona porque dentro de métodos, por exemplo, temos acesso a this, dentro do setup não. Tudo voltou a funcionar.
+
+[08:24] E outra coisa que também você vai reparar comigo é que no nosso input estamos fazendo um bind direto para nomeDoProjeto, ou seja, não estamos fazendo nomeDoProjeto.value no input.
+
+[08:35] Isso porque o template já sabe fazer isso, ele olha e entende que o nomeDoProjeto é uma variável reativa e ele automaticamente já vai olhar para o value.
+
+[08:46] Com essa pequena refatoração já nos livramos das options, mounted e data e trouxemos para dentro da composition API.
+
+[08:56] Vamos salvar e vamos ver se isso tudo continua funcionando. Repara que ele já recarregou e ele já trouxe para mim, mas não vou confiar, vou dar uma recarregada aqui. Vamos em projetos, entramos direto no projeto com id, não deu certo, deu problema, “projetos”.
+
+[09:13] Vamos para a nossa lista de projetos, “localhost:8080/projetos”. E aqui sim, temos a nossa lista de projetos. Acessando o Alura Tracker 3.0 temos a edição. Voltando, acessando o ByteBank temos acesso a edição também.
+
+[09:29] Vamos testar, vamos alterar o ByteBank para ByteBank na versão 2.0. E tudo continua funcionando exatamente como era antes, só que agora estamos evoluindo no uso da composition API.
+
+[09:44] Aos poucos vamos parar de usar a forma antiga de escrever componentes que resolve e atende em muitos casos, não é errado utilizar a composition API junto com a options API, depende do tamanho do seu componente.
+
+[10:00] Por enquanto essas duas formas coexistem dentro do Vue, você pode usar tanto uma como outra dependendo do seu cenário, o que fizer mais sentido para aquele componente.
+
+[10:08] Mas aqui, no caso do “Formulario.vue” vamos focar e migrar tudo que conseguirmos para dentro do setup.
+
+[10:17] E o primeiro passo dessa missão já foi concluído, já migramos o clico de vida, mounted e o data, que é o nosso estado local para dentro do *setup. E não para por aqui, tem mais umas coisas legais para fazermos. Te vejo no próximo vídeo.
+
+@@03
+Setup dos métodos
+
+[00:00] Hora de seguir na composition API, já começamos a refatorar o nosso componente de formulário, vamos continuar, tem pouca coisa para concluirmos.
+[00:09] Vamos dar uma olhada agora nesses métodos, temos duas coisas que precisamos cuidar antes de passar para a próxima refatoração que faremos. Vamos cuidar agora justamente dos métodos. Vamos dar uma olhada no setup.
+
+[00:24] Analisando o setup de novo definimos qualquer coisa que precisemos, seja importando um código, os uses da vida que são os hooks, useStore para ter acesso ao store, o useNotificador para notificar aquela mensagem de sucesso, ou de falha.
+
+[00:43] E o que precisamos definir, ou seja, o que precisamos utilizar no componente retornamos lá no final do setup.
+
+[00:50] Para trabalharmos com métodos não é muito diferente, vamos pegar um método salvar, podemos selecionar o método, dar um “Ctrl + X” sem medo. E vou trazer ele logo acima do return, vou trazer desse jeito, "Ctrl + V".
+
+[01:08] Repara que eu vou transformar ele em uma constante, uma const salvar = () => {. Vai receber, vou atribuir ele a essa constante, umaarrow function e no final, no nosso return, vamos retornar lá o salvar. Com isso, já temos acesso ao método salvar a partir do nosso template ou da nossa options API.
+
+[01:37] Vamos agora corrigir esses erros. Eu não tenho this.id, mas eu tenho if (props.id). Eu também tenho embaixo de dispatch id: props.id.
+
+[01:49] Store eu tenho acesso a ela direto, não preciso mais de this, store é um constante que está disponível dentro do meu setup. Eu não tenho mais a necessidade de definir esse this.
+
+[02:02] E também o nome do projeto eu tenho acesso aqui, mas lembra, isso é uma variável reativa, eu tenho que fazer nome: nomeDoProjeto.value,.
+
+[02:12] No CADASTRAR_PROJETO, a mesma coisa, não tenho this, mas eu uso o .dispatch(CADASTRAR_PROJETO, nomeDoProjeto.value. Quero o valor dessa variável reativa, nomeDoProjeto é uma referência para uma variável reativa.
+
+[02:26] E agora temos esse lidarComSucesso que é mais um método que vamos trazer para baixo, “Ctrl + X". Vou apagar agora a opção de métodos que eu não preciso mais e vou definir o lidarComSucesso com o mesmo princípio, "Ctrl + V na linha 49".
+
+[02:42] Vou transformar ele em uma constante, const lidarComSucesso = () =>. Perfeito. this.nomeDoProjeto não existe, já aprendemos, nomeDoProjeto.value.
+
+[02:55] O notificar não tem this mais, podemos simplesmente chamar o notificar, fizemos o import no começo do setup. Não temos this.$router, esse vai ser o primeiro desafio que teremos. Para ter acesso ao router, temos de utilizar Vue Hook.
+
+[03:20] Vamos logo depois de iniciar o nosso setup, vamos pegar uma const router =.
+
+[03:25] De onde vem isso? Tanto o Vuex quanto o Vue Router na versão 4 já conseguem trabalhar muito bem com a composition API, temos um hook para ter acesso ao router, useRt.
+
+[03:40] Repara que tem dois, toma cuidado no momento de escolher, o useRoute é para ter acesso a rota atual, por exemplo, para pegar os parâmetros, se eu quisesse pegar o ID direto pela rota eu usaria o useRoute.
+
+[03:56] O useRouter, com R no final, vai me dar acesso ao roteador do Vue. Repara que ele já fez um import para mim. Um import { useRouter } from "vue-router";.
+
+[04:10] Com esse Router conseguimos fazer exatamente o que precisamos, que é um router.push("/projetos");. E agora, por último, vamos tirar a vírgula daqui, e não precisamos mais usar this, vamos lidar o .then (() => lidarComSucesso diretamente).
+
+[04:28] Trouxemos tudo isso para cá, ele está reclamando de alguma coisa no final, é a vírgula no final do const salvar. Agora sim, sumiu o erro de compilação.
+
+[04:37] E outra coisa que podemos fazer é que agora, nesse momento, nem a store, nem notificar serão utilizados fora do setup, nem dentro das nossas options API, utilizávamos isso dentro dos métodos, e nem em cima, no nosso template. Precisamos ter acesso ao métodos salvar e à variável nomeDoProjeto.
+
+[05:01] Vamos exportar no final, vamos fazer o retorno só disso, vamos tirar a store e tirar notificar. Agora repara nosso componente está direito, a princípio nenhum erro de compilação. Vamos salvar e testar para garantir que a refatoração não quebrou nada no meio do caminho.
+
+[05:20] Voltamos para o Firefox, vou atualizar a página, "F5". Nenhum problema, vou tentar criar um "Novo projeto". Vou colocar o nome de "Estudando padrões de arquitetura".
+
+[05:42] Tudo funcionando direito. Vamos editar para ver se o Formulário continua funcionando do jeito que era antes. Agora vou tirar “arquitetura” e vou botar “Estudando padrões de projeto”. E perfeito, o update e o insert continuam funcionando.
+
+[05:58] Agora, olhando com um carinho maior e entendendo o problema que a composition API resolve, conseguimos bater o olho, vou tentar deixar tudo dentro do scroll, acho que eu não vou conseguir, está um pouco grande. Mas o principal aqui é darmos uma olhada em como nós preparamos o nosso componente.
+
+[06:21] As coisas não estão mais espalhadas pelas opções daquele objeto grande, métodos, props, data para estado local, computed. Enfim, não usamos mais as opções, agora usamos o setup.
+
+[06:35] E conseguimos definir tudo, o que precisa ser utilizado, nesse caso, no template, vamos lá e retornamos no final do setup. E tudo continuar funcionando lindamente. Mas não para por aqui, ainda tem alguns truques que precisamos aprender, tem algumas coisas que temos que fazer, já vou dar um spoiler aqui.
+
+[06:56] Se abrirmos o nosso arquivo de “Formulario.vue” de tarefas, "src > components > Formulario.vue". Ainda estamos usando a options API, temos data, methods e repara, dentro desse método salvarTarefa fazemos um this.$emit.
+
+[07:15] Mas já vimos que dentro da composition API não conseguimos fazer this. alguma coisa porque this ainda não existe. Como fazemos para emitir um evento dentro da composition API? Vamos descobrir?
+
+@@04
+Composition API pra que te quero?
+PRÓXIMA ATIVIDADE
+
+Você e Myles, um jovem aprendiz que trabalha com Vue faz muito pouco tempo, estavam conversando sobre as principais diferenças entre as versões 2 e 3 do framework e uma das coisas que ele te perguntou foi:
+Por que utilizar a composition API?
+
+Para decompor os componentes grandes em componentes melhores, facilitando assim a manutenção do código.
+ 
+Alternativa correta
+Para fazer requisições HTTP, podemos utilizar a Composition API ao invés do axios.
+ 
+Alternativa correta
+Para escrever componentes agrupando o código de acordo com as preocupações lógicas, facilitando a leitura das dependências do componente, e como ele funciona.
+ 
+Alternativa correta! Exatamente! Conforme os componentes e a aplicação vão crescendo, organizar nosso código apenas pelas options (data, computed, methods, watch) se torna uma tarefa complexa. A motivação da composition API é justamente essa! . Confira aqui a documentação na íntegra.
+
+https://v3.vuejs.org/guide/composition-api-introduction.html#why-composition-api
+
+@@05
+Emitindo eventos
+
+[00:00] Já deixei um spoiler na última aula que íamos dar uma olhada agora em como fazer emissão de evento utilizando a composition API.
+[00:07] Vamos lá, vamos colocar a mão no nosso “Formulario.vue” e fazer isso funcionar. De cara já temos duas propriedades que precisamos tratar, que estão dentro do nosso estado local, ou seja, dentro do método data. Já aprendemos da outra refatoração como fazemos para criar variáveis reativas, vamos fazer isso const descricao = ref(“ “), ref que é aquela função do Vue. Ele já viu aqui, ele vai importar. Vamos ver se está certo, ref from vue. Fez o import direito.
+
+[00:47] E eu quero que ele faça uma ref de string, repara que ele já faz a inferência do tipo. Eu não preciso fazer nada, o typescript já entende que ele é uma ref de string.
+
+[00:59] E vamos fazer o “Ctrl + C”, “Ctrl + V” aqui de const descricao = ref(" "). Também precisamos do id do projeto idProjeto. Vamos deletar, vamos remover o data da linha 46. E agora precisamos retornar essas propriedades, return {, descricao, e idProjeto.
+
+[01:23] Lembrando aqui, vale a pena reforçar, quando fazemos um return desse tipo, isso é coisa do actionscript mais novo, mas é a mesma coisa se eu fizesse descricao: descricao,. Ou seja, quando eu quero retornar um objeto literal que vai ter uma propriedade com o mesmo nome da variável eu posso omitir o : descricao, ele faz.
+
+[01:47] Já definimos o estado local aqui utilizando o ref, para cima na página tudo vai continuar funcionando. E agora, precisamos extrair o método salvarTarefa, “Ctrl + X". E vamos limpar os métodos que agora ficaram vazios. Vamos definir o método salvarTarefa seguindo aquele mesmo padrão.
+
+[02:12] Vamos definir uma constante, const salvarTarefa = (tempoEmSegundos: number) : void => {. Essa constante vai receber uma arrow function. Está tudo certo por enquanto. O emit vamos ver de onde vamos tirar.
+
+[02:30] Repara, aqui precisamos ter acesso a projetos, vamos fazer assim: vamos definir os projetos acima, const projetos projetos: computed(() => store.state.projeto.projetos). Vai receber esse computed. E agora no return podemos remover o que o projetos recebe. A constante projetos é a que extraímos e agora podemos acessar o projetos diretamente.
+
+[02:55] Vamos ver, repara, a const projetos a mesma coisa, projetos é um computed ref para o array, temos que fazer projetos.value. Perfeito. Na descricao não preciso mais do this, porém é um descricao.value. O id do projeto a mesma coisa, porém fazemos o .value. A descrição queremos limpar, descricao.value. Perfeito até agora.
+
+[03:28] E o emit? Antes de qualquer coisa já vamos retornar essa salvarTarefa, salvarTarefa. E agora o emit, como vamos fazer? Não temos acesso a this dentro do setup.
+
+[03:44] Já vimos no outro "Formulario.vue \Projetos" vamos voltar lá, que recebemos como primeiro parâmetro no setup as props: setup (props).
+
+[03:59] A segunda variável que recebemos no setup é o setup (props, contexto). E o que conseguimos fazer aqui é: tendo o contexto, fazemos o emit, contexto.emit (‘aoSalvarTarefa’. O contexto vai definir várias coisas, teremos acesso a várias coisas disponíveis ali no setup da composition API e o emit é uma delas.
+
+[04:22] Para evitarmos esse tipo de coisa, podemos fazer o nosso destructor, queremos só o emit, vamos extrair só o que precisamos, emit(‘aoSalvarTarefa’,e setup (props, { emit }) {.
+
+[04:35] Agora sim estamos extraindo o emit do contexto do Vue e fica tudo pronto, tudo bacana para fazermos a emissão do evento. Só que só acredito vendo. Vou salvar e vamos testar, vamos criar uma tarefa e ver se tudo continua funcionando como deveria.
+
+[04:56] Vamos voltar para o nosso Firefox e garantir que tudo continua funcionando conforme esperado. Lá no Firefox, agora em "tarefas", ou seja, esse formulário tem que continuar funcionando como antes. Vou criar uma tarefa de teste, vou dar ”Play”
+
+[05:15] Vou deixar ele rodar por alguns segundos, vou selecionar o projeto, vou colocar em "Estudando padrões de projetos". Vou fazer o "Stop". E sim, continua funcionando, ele está limpando o input do usuário, fez o stop, zerou o cronometro e definiu embaixo a nova tarefa que eu acabei de cadastrar.
+
+[05:36] Perfeito, ele continua funcionando, tudo exatamente como devia estar e agora melhoramos o quê? A experiência do desenvolvedor.
+
+[05:45] Voltando ao VS Code, na composition API, extraímos e não mais espalhamos tudo que precisamos pelas options ali, data, métodos, computed e por aí vai. Fazemos o setup do componente inteiro.
+
+[06:01] Com isso, conseguimos reaproveitar métodos, reaproveitar objetos inteiros enfim, reaproveitar código. Fica muito mais fácil, o código em si fica muito mais organizado.
+
+[06:11] E se não foi você que desenvolveu, quando você vai ver o componente de alguém você consegue rapidamente entender o que é necessário para aquele componente funcionar e como as coisas se relacionam.
+
+[06:22] Vemos aqui que o tempo em segundos está vindo do método salvarTarefa, a descrição de onde vem, o ID do projeto, de onde vem os projetos que ele está utilizando para encontrar, de onde vem. Fica tudo muito claro, a legibilidade conta muito.
+
+[06:36] É isso que tínhamos para fazer aqui nesse Formulário, cada vez mais utilizando todo o poder da composition API que temos na nossa mão aqui.
+
+[06:47] Vamos melhorar a parte de arquitetura e escrita de código dos nossos componentes Vue. Te vejo no próximo vídeo.
+
+@@06
+Faça como eu fiz: Uma nova forma de escrever componentes
+PRÓXIMA ATIVIDADE
+
+Chegou a sua vez de refatorar e mudar a forma que escrevemos componentes.
+Que tal refatorar o Tarefa.vue? Lembre-se que já vimos em outros lugares como utilizar o computed e o emit dentro do setup!
+
+Aprendemos umas funcionalidades legais, né?
+Uma das formas de reescrever o componente que representa uma tarefa é:
+
+<template>
+  <Box>
+    <div class="columns">
+      <div class="column is-4">
+        {{ tarefa.descricao || 'Tarefa sem descrição' }}
+      </div>
+      <div class="column is-3">
+        {{ tarefa.projeto?.nome || 'N/D' }}
+      </div>
+      <div class="column">
+        <Cronometro :tempoEmSegundos="tarefa.duracaoEmSegundos"/>
+      </div>
+    </div>
+  </Box>
+</template>
+
+<script lang="ts">
+import { defineComponent, PropType } from 'vue';
+import Cronometro from "./Cronometro.vue";
+import Box from "./Box.vue";
+import ITarefa from "../interfaces/ITarefa";
+
+export default defineComponent({
+  name: 'Tarefa',
+  components: {
+    Cronometro,
+    Box
+  },
+  props: {
+    tarefa: {
+      type: Object as PropType<ITarefa>,
+      required: true
+    }
+  },
+  computed: {
+    tempoGasto () : string {
+      return new Date(this.tarefa.duracaoEmSegundos * 1000)
+        .toISOString()
+        .substr(11, 8)
+    }
+  }
+});
+</script>
+
+@@07
+O que aprendemos?
+PRÓXIMA ATIVIDADE
+
+Nessa aula, você aprendeu como:
+Configurar o componente;
+Utilizando o método setup, conseguimos escrever tudo o que um componente precisa. Seja o seu estado, reagir ao ciclo de vida ou mesmo propriedades computadas.
+Parâmetros do método setup;
+Conseguimos acessar as props e o contexto do componente, mesmo utilizando a Composition API.
