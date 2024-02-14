@@ -841,7 +841,6 @@ Vimos na atividade de alternativas que temos outra forma de lidar com métodos a
 
 @@01
 Projeto da aula anterior
-PRÓXIMA ATIVIDADE
 
 Caso queira começar daqui, você pode baixar o projeto da aula anterior nesse link.
 
@@ -989,7 +988,6 @@ Setup dos métodos
 
 @@04
 Composition API pra que te quero?
-PRÓXIMA ATIVIDADE
 
 Você e Myles, um jovem aprendiz que trabalha com Vue faz muito pouco tempo, estavam conversando sobre as principais diferenças entre as versões 2 e 3 do framework e uma das coisas que ele te perguntou foi:
 Por que utilizar a composition API?
@@ -1056,7 +1054,6 @@ Emitindo eventos
 
 @@06
 Faça como eu fiz: Uma nova forma de escrever componentes
-PRÓXIMA ATIVIDADE
 
 Chegou a sua vez de refatorar e mudar a forma que escrevemos componentes.
 Que tal refatorar o Tarefa.vue? Lembre-se que já vimos em outros lugares como utilizar o computed e o emit dentro do setup!
@@ -1110,10 +1107,223 @@ export default defineComponent({
 
 @@07
 O que aprendemos?
-PRÓXIMA ATIVIDADE
 
 Nessa aula, você aprendeu como:
 Configurar o componente;
 Utilizando o método setup, conseguimos escrever tudo o que um componente precisa. Seja o seu estado, reagir ao ciclo de vida ou mesmo propriedades computadas.
 Parâmetros do método setup;
 Conseguimos acessar as props e o contexto do componente, mesmo utilizando a Composition API.
+
+#### 14/02/2024
+
+@04-Reatividade
+
+@@01
+Projeto da aula anterior
+
+Caso queira começar daqui, você pode baixar o projeto da aula anterior nesse link.
+
+https://github.com/alura-cursos/tracker-3/tree/aula-3
+
+@@02
+Filtrando tarefas
+
+[00:00] Legal o que fizemos até aqui, o nosso Tracker já evoluiu muito, tanto na experiência do usuário quanto na experiência do desenvolvedor. E agora está na hora de adicionarmos mais funcionalidades para os usuários.
+[00:12] E o que vamos fazer dessa vez é colocar um input para o usuário digitar alguma coisa ali e filtrarmos então as tarefas que tem aquele texto na descrição.
+
+[00:23] Lembrando que utilizamos o Bulma nesse projeto, na documentação do Bulma conseguimos vir em "Library > Form > Input" e pegar um exemplo, um HTML que tem um ícone antes e depois. Vamos pegar essa marcação, essa tags html e vamos levar para o nosso projeto, na nossa lista de tarefas dessa vez, está lá em "src > views > Tarefas.vue".
+
+[00:49] Logo após o Box que indica que não existem tarefas realizadas, vamos colar o código e pedir para o VS Code formatar o documento, vamos salvar e vamos ver como isso se comporta. Voltando no nosso Tracker. Perfeito. Repara que ele já colocou um indicador de e-mail aqui com um check no final.
+
+[01:09] Não é isso que queremos, o que queremos, já combinando que também temos disponível no Tracker uma biblioteca de coisas chamada Font Awesome. Olhando lá no "Font Awesome” conseguimos pesquisar pelo ícone de busca.
+
+[01:24] Para indicar ele lá no nosso HTML a classe tem que ser fas da-search. Vamos só ajustar esses ícones para ficar do jeito que precisamos. A primeira coisa aqui, no nosso input o tipo dele não vai ser e-mail, vamos já mudar para texto, type=”text”.
+
+[01:40] O placeholder vamos colocar "Digite para filtrar". Na direita não vamos colocar nada, podemos tirar essa classe de possui ícone na direita, queremos só na esquerda.
+
+[02:01] E justamente a da esquerda queremos mudar para o ícone daquela lupa que vimos no Font Awesome, <i class="fas fa-search"></i>. Vamos salvar isso. E vamos dar uma olhada se tudo funciona conforma imaginamos.
+
+[02:12] Voltando no nosso Firefox, perfeito. Digita para filtrar e colocou um ícone de lupa. Agora o que queremos? Precisamos de alguma forma fazer um bind do código ”Digite para filtrar”, vincular isso com uma variável, um filtro, v-model="filtro"/>.
+
+[02:27] E como fazemos isso já utilizando o composition API? Já vimos como faz isso. Vamos descer para o nosso método de setup e o que vamos dizer? Vamos criar uma variável chamada filtro que vai ser uma referência, const filtro = ref. Repara que o VS Code, meu melhor amigo, já vai importar para mim. Ele tem que importar ref de vue. Vamos confirmar, import { computed, defineComponent, ref } from "vue";.
+
+[02:52] Esse filtro é uma referência para uma string, const filtro = ref (' '). E agora vamos retornar ele para ele ficar disponível no html, no nosso template, filtro.
+
+[03:03] O segundo passo agora é de fato filtrar essas tarefas, repara comigo que temos aqui um computed, ou seja, ele computa alguma coisa e retorna a lista de tarefas que está dentro do estado.
+
+[03:18] Vamos extrair essa lógica daqui, vamos remover esse computed por enquanto desse return. Vamos criar uma constante chamada tarefas const tarefas = computed(() => store.state.tarefa.tarefas) e vamos atribuir a mesma coisa que tínhamos antes. Porém agora tem uma diferença, o que queremos fazer?
+
+[03:38] Se existir algum filtro queremos aplicar esse filtro na descrição das tarefas. Vamos utilizar o método filter, .filter(t =>)). Esse é um método de array, todo array tem esse método, queremos filtrar todas as tarefas.
+
+[03:52] E aqui tem a grande jogada que faremos das nossas duas possibilidades, quando retornarmos true para esse filter ele vai incluir aquela tarefa.
+
+[04:01] Vamos dizer que, por exemplo, se o !filtro.value)) é uma referência, se eu não tenho filtro.value é true, retorna, mas se eu tenho o !filtro.value e aminha tarefa tem uma descrição que inclui esse texto, || t.descricao.includes)), vou só pedir aqui para formatar de novo, agora está mais legível. Se não temos filtro ou se a descrição dessa tarefa inclui o valor desse filtro, (filtro.value).
+
+[04:39] Se eu não tenho nada, retorna, ou se eu tenho, retorna se a minha descrição incluir esse valor. Vou salvar e vamos testar para ver se isso funciona, minimizei o VS Code. Voltei aqui, vou dar um F5, vou limpar o console, vou limpar tudo.
+
+[04:56] E vamos digitar alguma coisa para ver se vai filtrar, vamos experimentar filtrar esse padrões, "Estudando padrões de projetos > X". Vamos digitar e perfeito, já achou.
+
+[05:06] Repara, ele já aplicou o filtro, conforme apagamos ele remove. Se eu digitar aqui "configuração", ele já removeu. Se eu digitar aqui "Refatoração", ele filtra para mim.
+
+[05:18] Repara que já conseguimos entregar a funcionalidade que precisávamos, de filtrar as tarefas de acordo com a descrição. Só que se analisarmos aqui, vamos dar uma olhada no nosso “Rede” no nosso developer tools.
+
+[05:35] Você pode clicar com o botão direito, se você não estiver com o seu aberto, e pedir para inspecionar, no Chrome, no Edge, no Firefox e no Safari também, é bem parecido, você clica com o botão direito, pede para inspecionar, ele já vai abrir.
+
+[05:51] No “Rede” vou limpar e repara comigo, não tem nada, ele não tem nenhuma requisição. Vou dar um "F5". Ele fez alguma coisa aqui. Ele pegou, quero "XHR". São requisições HTTP, ele fez em projetos. O que mais ele fez? Projetos e tarefas, é isso que eu queria mostrar para vocês.
+
+[06:17] Conforme recarregamos ele pegou a lista de tarefas e a lista de projetos. Vou limpar. Conforme digitamos na barra de busca ele não está indo na API buscar isso, ele está filtrando o que está em memória.
+
+[06:33] O que é ok, já é a funcionalidade que precisamos, mas precisamos ajustar isso. Além de digitar e aplicar esse filtro, não vamos fazer isso em memória, vamos delegar essa opção de filtrar para a API.
+
+[06:49] Vamos pegar esse filtro que o usuário digitou e enviar para a API para pegar a resposta. É isso que vamos fazer, vem comigo no próximo vídeo.
+
+@@03
+Reagindo a mudanças
+
+[00:00] Bem legal o que conseguimos fazer, já aplicamos em tempo de execução um filtro, conforme o usuário interage com o input nós limitamos a exibição das tarefas que estão relacionadas.
+[00:11] Só que precisamos fazer diferente, precisamos delegar essa funcionalidade, essa responsabilidade de aplicar o filtro para a API. Olha só como fazemos isso.
+
+[00:22] Primeiro, vamos dar uma olhada no Json Server, ele representa nossa API e a API tem que ter essa documentação de como fazemos para filtrar, GitHub. Olhando na documentação do “github.com/typcode/json-server”, ele tem uma parte de filtro.
+
+[00:39] E o que ele está falando aqui é: se você quiser filtrar, você passa o nome da propriedade e o nome do valor que você quer. Se tiver vários, você pode fazer. Enfim, tudo mais, fica a vontade, desde que seja nesse formato nome da propriedade igual a valor.
+
+[00:56] O que temos que fazer? Temos que observar esse input e conforme ele mudar, temos que fazer o hit, passar isso para uma action para a action filtrar na API. E como vamos fazer isso?
+
+[01:11] No Vue já temos uma receita de bolo para observar variáveis reativas. Vou na minha lista de tarefas, "Tarefas.vue". Já temos aqui o filtro que é o reativo, o que queremos fazer, o que queremos observar, e se eu quero reagir a essa alteração eu posso chamar um hook chamado watchEffect.
+
+[01:33] Repara, o VS Code já até auto completou para mim, ele também fez o import, import watchEffect from vue. E esse cara é um hook, ele é uma ação que recebe uma função, watchEffect(() => {. O que eu quero fazer aqui de imediato para percebermos se isso funciona?
+
+[01:51] Eu quero fazer o console.log(filtro.value). E agora na nossa lista de tarefas não vamos mais usar dessa forma, eu vou comentar, vou deixar ela de referência. E vamos voltar para o que era antes, tarefas é um tarefas: computed(() => store.state.tarefa.tarefas.
+
+[02:15] A lista de tarefas agora volta a ser o que era antes e aqui o que queremos fazer é observar o usuário digitando alguma cosia nesse filtro. Vou salvar e vamos ver se isso funciona. Voltando para o Firefox, vou limpar o console do developer tools. Vou colocar na barra de pesquisa "teste". Perfeito.
+
+[02:37] Conforme eu fui digitando, ele foi fazendo o log no console. Isso daqui funciona, o watchEffect realmente observa a minha dependência e executa esse código quando a dependência muda.
+
+[02:51] O que queremos fazer no caso de esse filtro mudar? Queremos chamar store.dispatch(OBTER_TAREFAS, filtro.value). E agora o que temos que fazer é obter isso lá do outro lado, e adicionar isso lá na URL caso o filtro possua algum valor, "store > modulos > tarefas > index.ts". Repara, como aqui ele já está mais coeso e menor não está uma store para todo o projeto, já sabemos onde temos que mexer.
+
+[03:29] É mais fácil de entender onde as coisas se encontram. O que vamos fazer aqui, no OBTER_TAREFAS? A primeira coisa que eu vou fazer é criar uma variável antes que vai representar essa URL, let url='tarefas'.
+
+[03:44] Eu tenho uma URL aqui. E o que vamos fazer agora é: receber um filtro por parâmetro, que é uma string, [OBTER_TAREFAS] ({ commit }, filtro: string.
+
+[03:54] Me acompanha, se eu tenho esse filtro eu quero vir na minha URL e adicionar uma interrogação, o nome da propriedade que eu quero filtrar igual e vou concatenar o filtro que veio, if (filtro) { > url += '?descricao=' + filtro. Aqui na minha action se eu recebi um filtro eu vou concatenar na URL esse cara.
+
+[04:19] Vou voltar na Alura Tracker, vou limpar o console. E vou digitar "Teste" na barra de pesquisa. Repara, funcionou, ele só me trouxe o Teste. Repara aqui outra coisa, o comportamento dessa blur, ele só vai trazer se o campo for exatamente idêntico ao que o usuário digitou.
+
+[04:38] Se eu fizer alguma coisa parcial ele não vai encontrar, "Tes". Se eu fizer o nome certo da tarefa, ele vai trazer para mim. É a API que está funcionando desse jeito, nós, enquanto frontends aqui, não temos poder de pedir para a API funcionar diferente.
+
+[04:54] É isso que vamos fazer, mas é isso que queríamos, delegamos agora a responsabilidade do filtro para a API. Se eu não tenho filtro ele vai lá e pega tudo, se eu tenho filtro ele vai trazer todas as tarefas cuja descrição é exatamente igual ao que o usuário filtrou.
+
+[05:14] Repara, já conseguimos observar dados. Vamos analisar o código que escrevemos. Lá na lista de tarefas estamos observando o Vue por debaixo dos panos, sabe que ele precisa executar esse código quando esse filtro mudar.
+
+[05:30] E pegamos esse mesmo filtro, o valor dessa variável reativa e passa para action. Lá na nossa action montamos o filtro do jeito que quisermos. Aqui, por bem, a gente decidiu fazer manualmente, fomos lá na URL e adicionamos o nome da descrição que estamos buscando.
+
+[05:49] Bacana que isso funciona, estamos vendo um pouco de mágica aqui por baixo dos panos. Mas está na hora, talvez, de fazermos um mergulho um pouco mais fundo e entender essa reatividade, como o Vue faz para saber que esse valor mudou, como ele observa isso, como ele é inteligente desse jeito.
+
+[06:08] Está na hora de vermos como o mágico tira o coelho da cartola. Vem comigo no próximo vídeo.
+
+@@04
+Para saber mais: Watch vs WatchEffect
+
+Às vezes queremos observar um valor em específico, inclusive comparar o valor antigo com o novo. Quando isso é necessário, utilizamos o watch, e assim podemos observar melhor o que está acontecendo com o valor a que estamos reagindo:
+    watch(filtro, (valorAtual, valorAntigo) => {
+      if (valorAtual != valorAntigo) {
+        store.dispatch(TipoAcoes.LISTAR_TAREFAS, valorAtual);
+      }
+    })COPIAR CÓDIGO
+Curtiu? Aqui tem mais detalhes sobre essa funcionalidade.
+
+https://v3.vuejs.org/api/computed-watch-api.html#watch
+
+@@05
+Um Proxy para a todos monitorar
+
+[00:00] Muito legal o que conseguimos fazer reagindo, com essa reatividade com o Vue. E olha só, está na hora agora de darmos um mergulho mais fundo e entendermos por debaixo dos panos o que o Vue faz para entregar isso pronto, nós só vamos lá e damos um watchEffect e a coisa acontece por debaixo dos panos.
+[00:21] Vem comigo para o VS Code e vamos brincar um pouco de JavaScript para entendermos o que está acontecendo. Na raiz do projeto eu vou criar um novo arquivo chamado “reatividade.js”. Nesse cara eu vou criar um projeto const projeto = { > id: 1, > descricao: 'Alura Tracker 3.0'.
+
+[00:54] E olha só, quando queremos observar e entender, ou executar, ou reagir, quando alguém pede ou define uma propriedade usamos a classe proxy, ela é nativa do JavaScript. É isso que o Vue utiliza por debaixo dos panos. Vamos criar esse proxy.
+
+[01:14] Eu vou criar uma constante chamada proxy, const proxy. E o que esse cara vai receber? Um novo objeto, vamos dar um new nessa classe de proxy, const proxy = new Proxy. Repara que o VS Code já está me ajudando, a primeira coisa é o que ele chama de target, é o alvo, o objeto original.
+
+[01:34] E o segundo aqui é o handler, o manipulador, (projeto, {. O que vamos dizer? Vamos ter duas funções, a primeira função é o get, get((). Esse get vai representar a função, alguém fez proxy.descricao, ele vai passar por aqui.
+
+[01:52] O que temos aqui de parâmetro? A primeira coisa, teremos o objeto original, ou seja, o projeto da constante, objetoOriginal. E o segundo parâmetro é a chave, chave. Qual propriedade? É o ID, a descricao?
+
+[02:10] O que vamos fazer é fazer um return objetoOriginal[chave]. Se alguém pedir o ID vamos retornar, se alguém pedir descrição vamos retornar. E além disso, vamos fazer um console.log, console.log. Vem comigo, vou interpolar aqui, console.log(Alguém pediu a chave ${chave} do projeto).
+
+[02:46] E agora o segundo método é o que define o novo valor, vamos ter um set, set((). O set é a mesma coisa, ele tem um objeto original, ele tem a chave que o usuário quer definir, só que dessa vez ele tem um a mais, que é o valor, set(objetoOriginal, chave, valor).
+
+[03:07] E vamos fazer a mesma coisa, vamos dizer objetoOriginal[chave] = valor. E também vamos fazer um console.log(Alguém alterou a chave ${chave} do projeto para o valor ${valor}). Teremos um código aqui reagindo a essas alterações.
+
+[03:44] Eu tenho o proxy e eu tenho o objeto. Primeiro, vamos fazer o seguinte: eu venho no console e peço para ele fazer console.log(projeto.descricao). Repara, é o projeto, não é o proxy. Se pedirmos para o Node executar esse código. Vamos lá, node .\reatividade.js.
+
+[04:06] Repara, eu estou na mesma pasta aqui, na pasta raiz. O que ele tem que fazer é fazer o console.log da descrição. Ele fez. E se eu mudar isso e pedir o proxy? console.log(proxy.descricao). Vou limpar o console.
+
+[04:22] E vou executar novamente, node .\reatividade.js. Repara, Alguém pediu a chave da descrição, ele foi lá e fez o console.log inicial. E se antes de fazer isso, vamos alterar, eu vou dizer que proxy.descricao = 'Reatividade é mega bacana'.
+
+[04:55] E vou executar de novo, node .\reatividade.js. Repara, a primeira coisa, “Alguém alterou a chave descrição do projeto para o valor reatividade é mega bacana”, “Alguém pediu a chave da descrição do projeto”. E por fim o valor em si que é Reatividade é mega bacana.
+
+[05:14] Na hora em que puxamos aquela função ref que reagimos, o Vue sabe que ele precisa reagir, lá por baixo dos panos ele está utilizando esse proxy. É isso que ele está fazendo, ele define várias proxys, quando fazemos o ref passando o objetoOriginal ele faz isso por debaixo dos panos.
+
+[05:45] E assim ele consegue reagir, ele mesmo já sabe o que ele tem que fazer, quando ele tem que fazer Lá na documentação, se você olhar lá no código fonte, você vai ver alguma coisa muito parecida com isso.
+
+[05:58] Tem uma pequena diferença que quando no core, no repositório original, ele vai fazer alguma coisa do tipo ao invés de retornar direto o objetoOriginal ele vai retornar return Reflect.get(objetoOriginal. chave, receptor ). E tem um terceiro parâmetro que é o receiver, o receptor. E encaminhamos ele para o reflect.
+
+[06:40] No set é bem parecido, isso aqui vai resolver alguns problemas de contexto do tipo this. alguma coisa. Vai ter alguma coisa ali no Saiba mais para você que quer dar um mergulho ainda maior, mas se você for curioso como eu e olhar lá na documentação do Vue, você vai ver alguma coisa muito parecido com isso daqui. É assim que o Vue faz a reatividade, ele tem proxys.
+
+[07:08] Vamos analisar agora o código, "views > Tarefas.vue". Quando passamos, tudo bem que aqui é só uma string, nem é um objeto complexo, mas quando criamos uma referência, o que o Vue devolve é um proxy daquele objeto e não o objeto em si.
+
+[07:28] Cada vez que definimos o valor dele, ele sabe que ele precisa executar alguma coisa, ele vai nas dependências e executa.
+
+[07:36] Agora revelamos o truque de como esse coelho sai da cartola. É um mergulho mais fundo para irmos ao âmago do core do Vue e como essa reatividade funciona. Agora aprendemos que a reatividade nada mais é do que um proxy que é implementado no core do Vue.
+
+[08:00] Muito bacana, espero que você mergulhe cada vez mais fundo nesse profissional em T, vamos saber bastante coisa e se especializa no front. Aqui estamos mergulhando no Vue e entendendo como funciona a reatividade.
+
+@@06
+Para saber mais: Proxy e Reflect
+
+Primeiramente, que incrível ter você por aqui, isso é um sinal que você já não confia muito em mágicas e quer saber o que tem acontecido por detrás dos bastidores.
+Aqui você confere a especificação do proxy, e todo o poder que ele tem. Já em relação ao Reflect, dá uma conferida aqui.
+
+https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Proxy
+
+https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Reflect
+
+@@07
+Code review
+
+Durante suas atividades, chegaram alguns comentários sobre um trecho de código que você escreveu:
+    const tarefas = computed(() =>
+      store.state.tarefas.filter(
+        (t) => !filtro.value || t.descricao.includes(filtro.value)
+      )
+    );COPIAR CÓDIGO
+O comentário é o seguinte:
+
+O método filter modifica o array inicial? Porque se isso acontecer, a cada filtro você pode perder alguns itens da lista. Talvez a documentação seja uma boa fonte de consulta.
+
+Esse método sempre retorna um novo array com os elementos filtrados, não teremos essa problema, uma vez que o array original estará sempre disponível.
+ 
+Alternativa correta! Exatamente! Parece repetitivo, mas a documentação SEMPRE ajuda. Às vezes pela pressa ficamos nas tentativas e erros até entender o que funciona ao invés de recorrer aos documentos disponíveis.
+Alternativa correta
+Na verdade, o correto seria utilizar o método find, para encontrar as tarefas, ao invés do método filter.
+ 
+Alternativa correta
+Ele modifica o array inicial, mas como as tarefas estão nas store ele não sofrerá com isso.
+
+@@08
+Faça como eu fiz
+
+Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com a próxima aula.
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@09
+O que aprendemos?
+
+Nessa aula, você aprendeu como:
+Computed como filtro;
+Utilizando o hook computed, conseguimos filtrar em memória as tarefas que continham o texto digitado pelo usuário.
+Watch e WatchEffect;
+Agora sim, reagindo a alterações no campo de busca, buscamos diretamente da API as tarefas que possuem determinada descrição.
+Reatividade;
+Procurando mergulhos cada vez mais fundo, descobrimos uma das formas de observarmos alterações em variáveis específicas e como reagir a elas.
