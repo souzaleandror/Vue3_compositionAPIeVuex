@@ -1327,3 +1327,185 @@ Watch e WatchEffect;
 Agora sim, reagindo a alterações no campo de busca, buscamos diretamente da API as tarefas que possuem determinada descrição.
 Reatividade;
 Procurando mergulhos cada vez mais fundo, descobrimos uma das formas de observarmos alterações em variáveis específicas e como reagir a elas.
+
+#### 15/02/2024
+
+@05-Toques finais
+
+@@01
+Projeto da aula anterior
+
+Caso queira começar daqui, você pode baixar o projeto da aula anterior nesse link.
+
+https://github.com/alura-cursos/tracker-3/tree/aula-4
+
+@@02
+Componentizando a modal
+
+[00:00] Muito legal o que fizemos no Tracker até agora, já mexemos, refatoramos e adicionamos coisas novas. E agora está na hora de extrairmos mais um componente, que é o componente da modal da edição de tarefas.
+[00:13] Quando um usuário interage com o Tracker e pede essa modal de edição, essa modal tem de ser reaproveitada e é isso que vamos fazer. Vem comigo.
+
+[00:24] Vou cancelar aqui. Vamos para o nosso código, lá em “Tarefas.vue". Conseguimos encontrar aqui a marcação da modal, vamos pegar todo esse código, sem medo, e vamos extrair ele. Lá no meio da extração veremos qual é a porção que precisamos receber, que não é a responsabilidade da modal.
+
+[00:49] Vou dar um "Ctrl + X" sem medo. E vou criar um novo arquivo, vou chamar de “Modal.vue”. Vou criar um template> e vou colocar aqui dentro, "Ctrl + V". Vou pedir para ele formatar para mim, "Format Document". E agora vou criar uma <script></script>.
+
+[01:12] Vou indicar que ele é typescript, <script lang="ts">. Vou fazer o import { defineComponent } from 'vue'. E agora vou fazer o export default defineComponent({ > name: 'Modal' passando já o nome desse componente, vou chamar de modal,
+
+[01:40] Já temos aqui o que precisamos, só que o miolo, o footer, o Modal, o miolo, isso tudo não é responsabilidade da Modal em si, isso vai ser quem usar a Modal que vai passar esse conteúdo, já vou dar o "Ctrl + X" aqui. E quando queremos renderizar o html que vem junto, usamos o <slot />.
+
+[02:20] O slot vai representar todos os elementos que estiverem dentro da Modal. Vou salvar o que tenho aqui. E já repara aqui comigo, esse conceito de tarefaSelecionada não existe mais. O que queremos é ter uma propriedade aqui chamada mostrar, por exemplo, v-if=”mostra”. Só vamos exibir isso se esse mostrar for ativo.
+
+[02:44] Vamos lá, vamos criar as props, props: { mostrar : {' type: Boolean, required: true esse cara é um objeto e teremos aqui o mostrar, como configurar ele, o type vai ser boolean que é um verdadeiro ou falso. Agora vamos chamar essa <Modal > </Modal>.
+
+[03:20] Vou colar aqui o miolo antes que eu o perca, "Ctrl + V". É o footer, o miolo e o cabeçalho. Vou pedir para formatar o documento. E agora para passarmos a propriedade mostrar, </Modal :mostrar=. Ele vai ser justamente aquela mesma comparação que tínhamos que era ="tarefaSelecionada l= null">. Se existe uma tarefa selecionada, mostra a Modal.
+
+[03:49] Agora, vamos fazer o import, vou fazer o Ctrl + C, Ctrl + V no Box, vou mudar para Modal. E vou mudar para Modal. Vou indicar que eu tenho o componente Modal.
+
+[04:01] Mexemos em bastante coisas, criamos essa Modal, fizemos o bind dessa prop e vamos ver se isso funciona, "Alura Tracker", vou limpar, cliquei, "Estudando padrões de projetos". Ele já reclamou aqui.
+
+[04:13] Propriedade mostra foi acessada, mas ela não foi definida. No VS Code. Vamos dar uma olhada. No template botamos mostra e no export default é mostrar.
+
+[04:23] Vem comigo, vou arrumar o nome no template, mostrar. Salvei. Voltei, vou recarregar, "Alura Tracker > F5".
+
+[04:33] Vou limpar o console, agora sim, Refatoração do Vuex, vou colocar Vuex 4, vou mandar salvar. Ele já alterou, vou recarregar, "F5". Continua funcionando como deveria, e agora temos um componente para a Modal, "Teste".
+
+[04:47] Só que aqui tem alguma coisa que ainda está me incomodando. Já conseguimos reaproveitar nossa Modal, só que no “Tarefas.vue”, onde estamos usando tem várias classes que estamos usando que são classes do Bulma.
+
+[05:03] E a pessoa que vai usar o Modal, vai ter que conhecer, ele vai saber que ele tem que ter um footer e vai ter um modal-card-foot, ele vai ter uma section que é o modal-card-body e um header, que é o modal-card-head.
+
+[05:15] Ainda está muito acoplado com o Bulma, o ideal seria se tivéssemos esse conceito mais abstrato e não vinculado ao Bulma. E se fosse uma modal mais independente. E ele pudesse dizer alguma coisa que o html está no header. O seguinte está no corpo, no body. E o último html está no rodapé.
+
+[05:40] É isso que vamos fazer, vamos melhorar esse conceito de slots. E para o nosso usuário, o nosso desenvolvedor, a pessoa que vai desenvolver utilizando a nossa modal vai ser mais amigável a utilização dela.
+
+[05:53] No próximo vídeo vamos aprender como dividir esses slots de uma forma mais amigável.
+
+@@03
+Controlando escopos
+
+[00:00] E para nossa modal agora ficar mega bacana só precisamos fazer mais um pequeno ajuste, que é para facilitar a vida das pessoas que vão trabalhar desenvolvendo com ela.
+[00:10] Olha só, vem comigo analisar o código. Indo em “Tarefas.vue” já extraímos o conceito da modal, mas ainda estamos usando as classes do Bulma para indicar header e o corpo, o rodapé, são muitas classes do Bulma. Seria legal se pudéssemos trabalhar com os slots customizados.
+
+[00:33] E ao invés de ter um único slot, termos vários, e a pessoa que vai desenvolver vai escolher qual ela vai usar e como ela vai usar cada um.
+
+[00:43] O bacana é que o Vue já permite que façamos isso, trabalhando com esses slots nomeados inclusive. Vem comigo para removermos, extrairmos daqui o header, o body e o rodapé, vou copiar tudo daqui. Nada se cria, tudo se copia, vou jogar para o “Modal.vue” e vou pedir só para ele formatar o documento “Format Document".
+
+[01:10] Eu trouxe toda a estrutura de cabeçalho, o corpo e rodapé e agora o que eu vou fazer é adicionar o slot para cada um. Vou adicionar o slot e cada um vai ter o nome, slot name=" "/>. O primeiro slot vamos chamar de cabecalho. O segundo vai ser o corpo, que é o miolo da modal, corpo. E no final vai ser o rodape.
+
+[01:47] Repara que já trouxemos o card-head, card-body, card-foot para o nosso componente. Agora só precisamos ajustar e ao invés de utilizar a marcação header class="modal-card-head vamos usar um template. Agora sim. Dizendo que o slot que queremos usar vai ser o cabeçalho, template v-slot:cabecalho.
+
+02:16] Agora a section a mesma coisa, vou mudar section template v-slot:corpo. Por último, a mesma coisa com o footer, template v-slot:rodape.
+
+[02:46] Repara, ficou bem mais clean a estrutura. Eu só preciso saber que eu tenho um cabeçalho, um corpo e um rodapé. E agora eu vou testar isso, vem comigo, vou recarregar a página, vou clicar em “Estudando padrões de projetos” e a modal continua funcionando como deveria, exibindo e se escondendo conforme necessário.
+
+[03:08] Agora a responsabilidade da pessoa que vai utilizar essa modal já diminuiu bastante e com isso, conseguimos reaproveitar ainda mais a estrutura.
+
+[03:18] Quanto menos acoplado for o nosso componente, mais é fácil de reutilizar e com isso todo mundo ganha.
+
+@@04
+Programação em par: Correção de bug
+
+Imagine que você trabalha na ByteDev, uma fábrica de software. Você acabou de pegar uma tarefa e ela é a correção de um bug.
+A descrição da tarefa é: após refatoração do componente, o rodapé não é mais exibido.
+
+O código da modal é esse:
+
+<template>
+  <div class="modal" :class="{ 'is-active': mostrar }">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <slot name="cabecalho"></slot>
+      </header>
+      <section class="modal-card-body">
+        <slot name="corpo"></slot>
+      </section>
+      <footer class="modal-card-foot is-justify-content-flex-end">
+        <div name="rodape"></div>
+      </footer>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "TrackerModal",
+  props: {
+    mostrar: {
+      type: Boolean,
+      required: true,
+    },
+  },
+});
+</script>
+
+<style scoped>
+.box {
+  background: #faf0ca;
+}
+</style>
+COPIAR CÓDIGO
+Identifique o que está causando o bug:
+
+Selecione uma alternativa
+
+Componentes Vue não aceitam múltiplos slots.
+ 
+Alternativa correta
+Houve um erro de digitação e <div name="rodape"></div> deveria ser <slot name="rodape"></slot>.
+ 
+Alternativa correta! Exatamente! Provavelmente foi uma distração ao refatorar o componente. Coisas desse tipo eventualmente acontecem, e podemos tentar minimizar esse tipo de bug escrevendo testes de unidade. Segue aqui um curso inteirinho sobre testes, pra você garantir sempre o bom funcionamento da sua aplicação.
+Alternativa correta
+A tag footer não existe. Por isso não está sendo renderizada.
+
+@@05
+Faça como eu fiz
+
+Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com os próximos cursos que tenham este como pré-requisito.
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@06
+O que aprendemos?
+
+Nessa aula, você aprendeu como:
+Componentes com slots;
+Utilizando os slots, conseguimos criar com facilidade componentes visuais que recebem seu conteúdo interno de forma dinâmica.
+Named slots;
+Aprendemos a dividir os slots e nomeá-los, diminuindo o acoplamento entre o conteúdo dinâmico e nossa est
+
+@@07
+Conclusão
+
+[00:00] Parabéns por ter concluído mais um curso de Vue3. Dessa vez você viu coisas incríveis e evoluiu um projeto que já existia. Simulamos um pouco da nossa vida real do dia a dia de pessoas desenvolvedoras.
+[00:15] Vamos dar uma olhada no VS Code uma última vez para relembrarmos o tanto de coisas que você aprendeu.
+
+[00:22] Lembrando aqui, deixei separado para relembrarmos a parte do Axios, fizemos toda uma integração com a API, fazendo requisições do tipo get, post, put e delete. Para fazer toda a parte de gestão dos projetos e das tarefas.
+
+[00:38] O que mais você viu? A parte de gestão de estado, tínhamos um estado único e refatoramos, agora temos módulos. Temos o módulo de tarefas, temos o módulo de projetos, e tudo isso facilita a manutenção desse código no dia a dia.
+
+[00:54] Mais para o final extraímos a modal para um componente mega reutilizável, trabalhando com slots nomeados.
+
+[01:03] E também botamos a mão um pouco no proxy, a nível de curiosidade, dando aquele mergulho mais fundo do profissional em T.
+
+[01:12] E vimos o que o core do Vue faz para trabalhar reatividade, como ele faz para reagir toda vez que um valor vem atribuído ou alterado a uma variável.
+
+[01:23] E tudo isso nesse curso que eu espero que você tenha gostado tanto quanto eu. E te vejo em uma próxima. Vida longa e próspera.
+
+@@08
+Parabéns
+
+Chegou a hora de comemorar essa conquista incrível!
+Neste treinamento, todas as barreiras foram vencidas e você aprofundou ainda mais seus conhecimentos em Vue.
+
+Você viveu uma experiência de trabalhar em um projeto já existente, refatorou código para garantir uma boa arquitetura, desenvolveu funcionalidades novas, mudou alguns componentes para a Composition API, separou o vuex em módulos, criou componentes reutilizáveis e ainda aprendeu como a reatividade funciona por baixo dos panos!
+
+É muita coisa bacana!
+
+Mostre a aplicação que desenvolveu para outras pessoas e marque a Alura nas redes sociais com a #aluravue, porque vamos olhar seu projeto e curtir o que fez.
+
+Agora, dê uma nota para o curso, pegue seu certificado e comemore bastante essa conquista.
+Meus parabéns! Estou muito feliz por você ter chegado até aqui.
+
+Vinicios Neves
